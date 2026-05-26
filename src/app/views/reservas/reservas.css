@@ -1,0 +1,141 @@
+.container-reservas {
+  padding: 1.5rem;
+}
+
+.header-reservas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.content-reservas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-section,
+.list-section {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-label,
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.form-control,
+.form-select {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.35rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 0.35rem;
+  padding: 0.7rem 1rem;
+}
+
+.btn-primary {
+  background-color: #2f74ff;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #333333;
+}
+
+.alert {
+  padding: 0.8rem 1rem;
+  border-radius: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.alert-error {
+  background: #ffe6e6;
+  color: #a00;
+  border: 1px solid #f5c2c2;
+}
+
+.alert-success {
+  background: #e6ffea;
+  color: #116611;
+  border: 1px solid #b5e7bf;
+}
+
+.reservas-grid,
+.spaces-grid,
+.disponibilidad-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.reserva-card,
+.disponibilidad-card {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+}
+
+.disponibilidad-card {
+  background: #f9faff;
+}
+
+.reserva-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.loading-spinner,
+.empty-state {
+  color: #555;
+}
+
+@media (max-width: 900px) {
+  .content-reservas {
+    grid-template-columns: 1fr;
+  }
+}

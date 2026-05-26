@@ -1,0 +1,177 @@
+<div class="container-espacios">
+  <!-- Header con logout -->
+  <div class="header-espacios">
+    <h1>Registro de Espacios</h1>
+    <button (click)="logout()" class="btn btn-logout">Cerrar Sesión</button>
+  </div>
+
+  <!-- Mensajes de error y éxito -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <strong>⚠️ Error:</strong> {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    <strong>✓ Éxito:</strong> {{ successMessage }}
+  </div>
+
+  <div class="content-espacios">
+    <!-- Formulario de registro -->
+    <div class="form-section">
+      <h2>Nuevo Espacio</h2>
+      <form (ngSubmit)="guardar(espacioForm)" #espacioForm="ngForm">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre del Espacio *</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="espacio.nombre"
+              name="nombre"
+              placeholder="Ej: Cancha A"
+              [disabled]="isSaving"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Capacidad máxima *</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="espacio.capacidad"
+              name="capacidad"
+              min="1"
+              [disabled]="isSaving"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Precio Base ($) *</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="espacio.precioBase"
+              name="precioBase"
+              min="0"
+              step="0.01"
+              [disabled]="isSaving"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de Espacio *</label>
+            <select
+              class="form-select"
+              [(ngModel)]="espacio.tipo"
+              name="tipo"
+              [disabled]="isSaving"
+              required
+            >
+              <option value="CANCHA">Cancha</option>
+              <option value="SALON">Salón</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group checkbox">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="habilitado"
+              [(ngModel)]="espacio.habilitado"
+              name="habilitado"
+              [disabled]="isSaving"
+            >
+            <label class="form-check-label" for="habilitado">Espacio Habilitado</label>
+          </div>
+
+          <div class="form-group checkbox">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="permiteMediaReserva"
+              [(ngModel)]="espacio.permiteMediaReserva"
+              name="permiteMediaReserva"
+              [disabled]="isSaving"
+            >
+            <label class="form-check-label" for="permiteMediaReserva">Permite Media Reserva</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cancha Asociada (Opcional)</label>
+          <select
+            class="form-select"
+            [(ngModel)]="espacio.canchaAsociada"
+            name="canchaAsociada"
+            [disabled]="isSaving"
+          >
+            <option [ngValue]="null">Ninguna</option>
+            <option *ngFor="let item of listaEspacios" [ngValue]="item">
+              {{ item.nombre }} ({{ item.tipo }})
+            </option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="!espacioForm.form.valid || isSaving"
+          >
+            <span *ngIf="!isSaving">Registrar Espacio</span>
+            <span *ngIf="isSaving">Guardando...</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="limpiarFormulario()"
+            [disabled]="isSaving"
+          >
+            Limpiar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Lista de espacios -->
+    <div class="list-section">
+      <h2>Espacios Registrados</h2>
+      <div *ngIf="isLoadingEspacios" class="loading-spinner">
+        Cargando espacios...
+      </div>
+      <div *ngIf="!isLoadingEspacios && listaEspacios.length === 0" class="empty-state">
+        <p>No hay espacios registrados aún.</p>
+      </div>
+      <div *ngIf="!isLoadingEspacios && listaEspacios.length > 0" class="spaces-grid">
+        <div *ngFor="let espacio of listaEspacios" class="space-card">
+          <div class="space-header">
+            <h3>{{ espacio.nombre }}</h3>
+            <span class="space-type" [ngClass]="'type-' + espacio.tipo.toLowerCase()">
+              {{ espacio.tipo }}
+            </span>
+          </div>
+          <div class="space-info">
+            <p><strong>Capacidad:</strong> {{ espacio.capacidad }} personas</p>
+            <p><strong>Precio:</strong> ${{ espacio.precioBase }}</p>
+            <p><strong>Estado:</strong> {{ espacio.habilitado ? '✓ Habilitado' : '✗ Deshabilitado' }}</p>
+            <p><strong>Media Reserva:</strong> {{ espacio.permiteMediaReserva ? 'Sí' : 'No' }}</p>
+            <p *ngIf="espacio.canchaAsociada">
+              <strong>Cancha Asociada:</strong> {{ espacio.canchaAsociada.nombre }}
+            </p>
+          </div>
+          <div class="space-actions">
+            <button class="btn btn-primary" (click)="reservarEspacio(espacio)">Reservar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

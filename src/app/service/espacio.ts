@@ -1,0 +1,130 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { Espacio } from '../models/espacio.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class EspacioService {
+  // Usamos el proxy definido en proxy.conf.json para evitar CORS y mantener la misma base de origen
+  private apiUrl = '/api/espacios';
+
+  constructor(private http: HttpClient) {}
+
+  /**
+   * Obtiene todos los espacios existentes desde el backend
+   * @returns Observable con array de espacios
+   */
+  getEspacios(): Observable<Espacio[]> {
+    return this.http.get<any>(`${this.apiUrl}/listarTodos`).pipe(
+      catchError(err => this.handleError(err)),
+      // Normalizar respuesta para diferentes formatos de backend
+      // Puede devolver directamente un array o un objeto con data/espacios
+      map((response: any) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+
+        if (Array.isArray(response?.data)) {
+          return response.data;
+        }
+
+        if (Array.isArray(response?.espacios)) {
+          return response.espacios;
+        }
+
+        return [];
+      })
+    );
+  }
+
+  /**
+   * Obtiene un espacio específico por ID
+   * @param id ID del espacio
+   * @returns Observable con el espacio solicitado
+   */
+  obtenerEspacio(id: number): Observable<Espacio> {
+    return this.http.get<Espacio>(`${this.apiUrl}/BuscarEspacioForId/${id}`).pipe(
+      catchError(err => this.handleError(err))
+    );
+  }
+
+  /**
+   * Registra un nuevo espacio
+   * @param espacio Datos del espacio a registrar
+   * @returns Observable con el espacio creado
+   */
+  registrarEspacio(espacio: Espacio): Observable<Espacio> {
+    return this.http.post<Espacio>(`${this.apiUrl}/Nuevoespacio`, espacio).pipe(
+      catchError(err => this.handleError(err))
+    );
+  }
+
+  /**
+   * Actualiza un espacio existente
+   * @param id ID del espacio
+   * @param espacio Nuevos datos del espacio
+   * @returns Observable con el espacio actualizado
+   */
+  actualizarEspacio(id: number, espacio: Espacio): Observable<Espacio> {
+    return this.http.put<Espacio>(`${this.apiUrl}/${id}`, espacio).pipe(
+      catchError(err => this.handleError(err))
+    );
+  }
+
+  /**
+   * Pone un espacio en mantenimiento (borrado lógico)
+   * @param id ID del espacio
+   * @returns Observable vacío
+   */
+  desactivarEspacio(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/mantenimiento`, {}).pipe(
+      catchError(err => this.handleError(err))
+    );
+  }
+
+  /**
+   * Maneja errores HTTP y proporciona mensajes descriptivos
+   * @param error Error HTTP
+   * @returns Observable con error procesado
+   */
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'Ocurrió un error en la solicitud';
+
+    if (error.error instanceof ErrorEvent) {
+      // Error del cliente o de red
+      errorMessage = `Error de red: ${error.error.message}`;
+    } else {
+      // Error del servidor
+      switch (error.status) {
+        case 0:
+          errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté ejecutándose.';
+          break;
+        case 400:
+          errorMessage = `Solicitud inválida: ${error.error?.message || 'Revisa los datos enviados'}`;
+          break;
+        case 401:
+          errorMessage = 'No autenticado. Por favor inicia sesión.';
+          break;
+        case 403:
+          errorMessage = 'No tienes permisos para realizar esta acción.';
+          break;
+        case 404:
+          errorMessage = 'El recurso solicitado no existe.';
+          break;
+        case 500:
+          errorMessage = `Error del servidor: ${error.error?.message || 'Intenta más tarde'}`;
+          break;
+        default:
+          errorMessage = `Error ${error.status}: ${error.statusText}`;
+      }
+    }
+
+    console.error('Error en EspacioService:', errorMessage, error);
+    return throwError(() => new Error(errorMessage));
+  }
+}
+
+

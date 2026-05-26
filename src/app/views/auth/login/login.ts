@@ -1,0 +1,82 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../service/auth.service';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './login.html',
+  styleUrls: ['./login.css']
+})
+export class LoginComponent {
+  cedula: string = '';
+  contrasenia: string = '';
+  isLoading: boolean = false;
+  errorMessage: string = '';
+  successMessage: string = '';
+
+  // Para mostrar/ocultar contraseña
+  mostrarPassword: boolean = false;
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  /**
+   * Realiza el login con las credenciales proporcionadas
+   * Backend requiere: Cédula + Contraseña
+   */
+  login(): void {
+    // Validar que los campos no estén vacíos
+    if (!this.cedula || !this.contrasenia) {
+      this.errorMessage = 'Por favor completa cédula y contraseña';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.login(this.cedula, this.contrasenia).subscribe({
+      next: () => {
+        this.successMessage = 'Login exitoso. Redirigiendo...';
+        this.isLoading = false;
+
+        // El token ya se guarda en localStorage dentro de AuthService.login().
+        setTimeout(() => {
+          this.router.navigate(['/espacios']);
+        }, 1000);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        // Mostrar información útil para debug
+        const status = err?.status;
+        const serverMsg = err?.error ? (typeof err.error === 'string' ? err.error : JSON.stringify(err.error)) : null;
+        if (status === 403) {
+          this.errorMessage = 'Acceso denegado (403). Token inválido o credenciales incorrectas.';
+        } else {
+          this.errorMessage = serverMsg || err.message || 'Error al iniciar sesión. Verifica cédula y contraseña.';
+        }
+        console.error('Error de login:', err);
+      }
+    });
+  }
+
+  /**
+   * Alterna la visibilidad de la contraseña
+   */
+  togglePasswordVisibility(): void {
+    this.mostrarPassword = !this.mostrarPassword;
+  }
+
+  /**
+   * Maneja presionar Enter en los inputs
+   */
+  onKeyPress(event: any): void {
+    if (event.key === 'Enter') {
+      this.login();
+    }
+  }
+}
+

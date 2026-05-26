@@ -1,0 +1,82 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="login-header">
+      <h1>La10 - Sistema de Espacios</h1>
+      <p>Inicia sesión para continuar</p>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <strong>⚠️ Error:</strong> {{ errorMessage }}
+    </div>
+
+    <!-- Mensaje de éxito -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <strong>✓ Éxito:</strong> {{ successMessage }}
+    </div>
+
+    <!-- Formulario de login -->
+    <form (ngSubmit)="login()" class="login-form">
+      <!-- Campo Usuario -->
+      <div class="form-group">
+        <label for="usuario" class="form-label">Cédula</label>
+        <input
+          type="text"
+          id="usuario"
+          class="form-control"
+          [(ngModel)]="cedula"
+          name="usuario"
+          placeholder="Ingresa tu cédula"
+          [disabled]="isLoading"
+          (keypress)="onKeyPress($event)"
+          required
+        >
+      </div>
+
+      <!-- Campo Contraseña -->
+      <div class="form-group">
+        <label for="password" class="form-label">Contraseña</label>
+        <div class="password-input-group">
+          <input
+            [type]="mostrarPassword ? 'text' : 'password'"
+            id="password"
+            class="form-control"
+            [(ngModel)]="contrasenia"
+            name="password"
+            placeholder="Ingresa tu contraseña"
+            [disabled]="isLoading"
+            (keypress)="onKeyPress($event)"
+            required
+          >
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [disabled]="isLoading"
+            title="Mostrar/Ocultar contraseña"
+          >
+            {{ mostrarPassword ? '👁️‍🗨️' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Botón de login -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        [disabled]="isLoading || !cedula || !contrasenia"
+      >
+        <span *ngIf="!isLoading">Iniciar Sesión</span>
+        <span *ngIf="isLoading">Cargando...</span>
+      </button>
+    </form>
+
+    <!-- Información adicional -->
+    <div class="login-footer">
+      <p class="info-text">
+        Sistema de gestión de espacios e instalaciones deportivas
+      </p>
+      <p class="version-text">v1.0</p>
+    </div>
+  </div>
+</div>
