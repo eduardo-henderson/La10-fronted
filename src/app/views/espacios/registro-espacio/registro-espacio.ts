@@ -32,6 +32,10 @@ export class RegistroEspacioComponent implements OnInit {
     private cd: ChangeDetectorRef
   ) {}
 
+  irADisponibilidad() {
+    this.router.navigate(['/disponibilidad']);
+  }
+
   reservarEspacio(espacio: Espacio): void {
     const id = (espacio as any).idEspacio ?? (espacio as any).id ?? 0;
     if (!id) {

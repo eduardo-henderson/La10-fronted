@@ -1,0 +1,73 @@
+<div class="container-espacios">
+
+  <div class="header-espacios">
+    <button class="btn-back" (click)="volver()">Volver</button>
+    <h1>Disponibilidad</h1>
+    <button class="btn-logout">Salir</button>
+  </div>
+
+  <div class="filter-section-top">
+    <div class="filter-toggle-group">
+      <button 
+        (click)="cambiarFiltro('CANCHA')" 
+        [class.active]="tipoSeleccionado === 'CANCHA'"
+        class="filter-toggle-btn"
+      >
+        Canchas
+      </button>
+      
+      <button 
+        (click)="cambiarFiltro('SALON')" 
+        [class.active]="tipoSeleccionado === 'SALON'"
+        class="filter-toggle-btn"
+      >
+        Salones
+      </button>
+    </div>
+  </div>
+
+  <div class="content-espacios">
+
+    <div class="list-section">
+      <h2>Mostrando: {{ tipoSeleccionado | titlecase }}s disponibles</h2>
+
+      <div *ngIf="espacios === null" class="loading-state">
+        <p>Cargando disponibilidad...</p>
+      </div>
+
+      <div *ngIf="espacios !== null && espacios.length === 0" class="empty-state">
+        <p>No hay {{ tipoSeleccionado | lowercase }}s disponibles para hoy.</p>
+      </div>
+
+      <div *ngIf="espacios !== null && espacios.length > 0" class="spaces-grid">
+
+        <div *ngFor="let espacio of espacios" class="space-card">
+
+          <div class="space-header">
+            <h3>{{ espacio.nombre }}</h3>
+            <span class="space-type">
+              ID: {{ espacio.idEspacio }}
+            </span>
+          </div>
+
+          <div class="horarios" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <button 
+              *ngFor="let h of espacio.horariosDisponibles"
+              class="btn-horario"
+            >
+              {{ h.horario | date:'HH:mm' }}
+              <span *ngIf="h.necesitaRival" style="display:block; font-size: 10px;">
+                Falta rival
+              </span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

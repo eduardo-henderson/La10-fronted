@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Espacio } from '../models/espacio.model';
+import { EspacioDisponibilidad } from '../models/espacio-disponibilidad.model';
 
 @Injectable({
   providedIn: 'root'
@@ -133,6 +134,14 @@ export class EspacioService {
 
     console.error('Error en EspacioService:', errorMessage, error);
     return throwError(() => new Error(errorMessage));
+  }
+
+  getDisponibilidadHoy(tipo: string) {
+    return this.http.get<EspacioDisponibilidad[]>(
+      `${this.apiUrl}/disponibilidad/hoy?tipo=${tipo}`
+    ).pipe(
+      catchError(err => this.handleError(err))
+    );
   }
 }
 

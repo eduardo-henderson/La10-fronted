@@ -1,0 +1,224 @@
+/* estilos generales de la vista */
+.container-espacios {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* header corregido para alinear los elementos en una sola fila */
+.header-espacios {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #c0392b;
+  box-shadow: 0 2px 12px rgba(192, 57, 43, 0.12);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header-espacios h1 {
+  margin: 0;
+  color: #c0392b;
+  font-size: 32px;
+}
+
+.btn-logout {
+  background-color: #c0392b;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #a93226;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(192, 57, 43, 0.3);
+}
+
+.btn-back {
+  background: transparent;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background-color: #fff0f0;
+}
+
+/* seccion de filtros superiores compactos */
+.filter-section-top {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.filter-toggle-group {
+  display: inline-flex;
+  background-color: #f2f4f4;
+  padding: 5px;
+  border-radius: 30px;
+  border: 1px solid #e5e8e8;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.filter-toggle-btn {
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #566573;
+  background: transparent;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-toggle-btn.active {
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.25);
+}
+
+.filter-toggle-btn:hover:not(.active) {
+  background-color: #e5e8e8;
+  color: #1c2833;
+}
+
+/* contenedor de contenido principal configurado en bloque */
+.content-espacios {
+  display: block;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.list-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.list-section h2 {
+  color: #c0392b;
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  border-bottom: 2px solid #c0392b;
+  padding-bottom: 10px;
+}
+
+/* estados de carga y vacio */
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #c0392b;
+}
+
+/* grilla de tarjetas configurada de forma responsiva */
+.spaces-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* diseño estructurado para cada tarjeta de espacio */
+.space-card {
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.space-card:hover {
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.1);
+  transform: translateY(-2px);
+}
+
+.space-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.space-header h3 {
+  margin: 0;
+  color: #c0392b;
+  font-size: 18px;
+}
+
+.space-type {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(192, 57, 43, 0.1);
+  color: #c0392b;
+}
+
+/* botones individuales para los horarios */
+.btn-horario {
+  min-width: 90px;
+  padding: 10px;
+  background-color: white;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-horario:hover {
+  background-color: #fff0f0;
+  transform: translateY(-1px);
+}
+
+/* adaptabilidad para pantallas pequeñas */
+@media (max-width: 640px) {
+  .header-espacios {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .header-espacios h1 {
+    font-size: 24px;
+  }
+
+  .list-section {
+    padding: 20px;
+  }
+
+  .space-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
