@@ -26,29 +26,30 @@ export class AuthService {
    * @returns Observable con la respuesta del login (contiene el token)
    */
   login(usuario: string, password: string): Observable<any> {
-    const params = new HttpParams()
-      .set('usuario', usuario)
-      .set('password', password);
-    //enviamos una petición POST al backend para obtener el token JWT. El backend debe validar las credenciales y devolver el token en la respuesta. Aceptamos varias formas de respuesta para mayor compatibilidad con diferentes implementaciones de backend.
-    return this.http.post<any>(`/api/version1/seguridad/login`, {}, { params })
-      .pipe(
-        tap(response => {
-          // Extraer el token del backend y guardarlo en localStorage.
-          // Aceptamos varias formas de respuesta para mayor compatibilidad.
-          const token = response?.token
-            ?? response?.access_token
-            ?? response?.data?.token
-            ?? response?.data?.access_token
-            ?? response;
-           // Verificar que el token sea una cadena no vacía antes de guardarlo 
-          if (typeof token === 'string' && token.trim()) {
-            this.setToken(token);
-            // Actualizar el estado de autenticación a true
-            this.isAuthenticatedSubject.next(true);
-          }
-        })
-      );
-  }
+  const params = new HttpParams()
+    .set('usuario', usuario)
+    .set('password', password);
+
+  return this.http.post<any>(`/api/version1/seguridad/login`, {}, { params })
+    .pipe(
+      tap(response => {
+        console.log('LOGIN RESPONSE:', response); // 🔥 DEBUG
+
+        //BACKEND DEVUELVE { token: "...", message: "..." }
+        const token = response?.token;
+
+        if (typeof token === 'string' && token.trim()) {
+          this.setToken(token);
+
+          console.log('TOKEN GUARDADO:', token);
+
+          this.isAuthenticatedSubject.next(true);
+        } else {
+          console.log('NO SE ENCONTRÓ TOKEN EN LA RESPUESTA');
+        }
+      })
+    );
+}
 
   /**
    * Registra un nuevo usuario

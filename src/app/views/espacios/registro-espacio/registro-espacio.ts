@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { Espacio, TipoEspacio } from '../../../models/espacio.model';
 import { EspacioService } from '../../../service/espacio';
 import { AuthService } from '../../../service/auth.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-registro-espacio',
@@ -27,7 +28,8 @@ export class RegistroEspacioComponent implements OnInit {
   constructor(
     private espacioService: EspacioService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cd: ChangeDetectorRef
   ) {}
 
   reservarEspacio(espacio: Espacio): void {
@@ -59,12 +61,23 @@ export class RegistroEspacioComponent implements OnInit {
         this.isLoadingEspacios = false;
       }))
       .subscribe({
-        next: (data) => {
+       next: (data) => {
           this.listaEspacios = data;
+          //resolver relaciones (CLAVE)
+          this.listaEspacios.forEach(e => {
+            const id = (e as any).idCanchaAsociada;
+            if (id) {
+              e.canchaAsociada = this.listaEspacios.find(
+                x => x.idEspacio === id
+              ) || null;
+            }
+          });
+          console.log('LISTA CON RELACIONES:', this.listaEspacios);
+          this.cd.detectChanges();
         },
         error: (err) => {
           // Manejar error de autenticación
-          if (err.message.includes('401') || err.message.includes('No autenticado')) {
+          if (err.status === 401) {
             this.errorMessage = 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.';
             setTimeout(() => {
               this.authService.logout();
@@ -114,9 +127,11 @@ export class RegistroEspacioComponent implements OnInit {
         next: (response) => {
           this.isSaving = false;
           this.successMessage = 'Espacio guardado exitosamente';
+          // recargar lista PRIMERO
+          this.cargarEspaciosExistentes();
+          // resetear formulario después
           this.limpiarFormulario();
           form.resetForm(this.espacio);
-          this.cargarEspaciosExistentes();
 
           setTimeout(() => {
             this.successMessage = '';

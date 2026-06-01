@@ -28,36 +28,51 @@ export class LoginComponent {
    * Backend requiere: Cédula + Contraseña
    */
   login(): void {
-    // Validar que los campos no estén vacíos
-    if (!this.cedula || !this.contrasenia) {
-      this.errorMessage = 'Por favor completa cédula y contraseña';
-      return;
-    }
+  if (!this.cedula || !this.contrasenia) {
+    this.errorMessage = 'Por favor completa cédula y contraseña';
+    return;
+  }
 
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+  this.isLoading = true;
+  this.errorMessage = '';
+  this.successMessage = '';
 
-    this.authService.login(this.cedula, this.contrasenia).subscribe({
-      next: () => {
+  this.authService.login(this.cedula, this.contrasenia).subscribe({
+      next: (res) => {
+        console.log('🔐 Login response:', res);
+
+        //GUARDAR TOKEN 
+        const token = res?.token || res?.jwt || res?.accessToken;
+
+        if (token) {
+          localStorage.setItem('auth_token', token);
+          console.log('Token guardado correctamente');
+        } else {
+          console.log('❌ No vino token en la respuesta');
+        }
+
         this.successMessage = 'Login exitoso. Redirigiendo...';
         this.isLoading = false;
 
-        // El token ya se guarda en localStorage dentro de AuthService.login().
+        // navegar DESPUES de guardar token
         setTimeout(() => {
           this.router.navigate(['/espacios']);
-        }, 1000);
+        }, 500);
       },
       error: (err) => {
         this.isLoading = false;
-        // Mostrar información útil para debug
+
         const status = err?.status;
-        const serverMsg = err?.error ? (typeof err.error === 'string' ? err.error : JSON.stringify(err.error)) : null;
+        const serverMsg = err?.error
+          ? (typeof err.error === 'string' ? err.error : JSON.stringify(err.error))
+          : null;
+
         if (status === 403) {
           this.errorMessage = 'Acceso denegado (403). Token inválido o credenciales incorrectas.';
         } else {
-          this.errorMessage = serverMsg || err.message || 'Error al iniciar sesión. Verifica cédula y contraseña.';
+          this.errorMessage = serverMsg || err.message || 'Error al iniciar sesión.';
         }
+
         console.error('Error de login:', err);
       }
     });

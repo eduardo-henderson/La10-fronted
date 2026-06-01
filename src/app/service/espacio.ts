@@ -9,7 +9,7 @@ import { Espacio } from '../models/espacio.model';
 })
 export class EspacioService {
   // Usamos el proxy definido en proxy.conf.json para evitar CORS y mantener la misma base de origen
-  private apiUrl = '/api/espacios';
+  private apiUrl = '/api/version1/espacios';
 
   constructor(private http: HttpClient) {}
 
@@ -19,26 +19,35 @@ export class EspacioService {
    */
   getEspacios(): Observable<Espacio[]> {
     return this.http.get<any>(`${this.apiUrl}/listarTodos`).pipe(
-      catchError(err => this.handleError(err)),
-      // Normalizar respuesta para diferentes formatos de backend
-      // Puede devolver directamente un array o un objeto con data/espacios
       map((response: any) => {
+        let espacios: any[] = [];
+
         if (Array.isArray(response)) {
-          return response;
+          espacios = response;
+        } else if (Array.isArray(response?.data)) {
+          espacios = response.data;
+        } else if (Array.isArray(response?.espacios)) {
+          espacios = response.espacios;
         }
 
-        if (Array.isArray(response?.data)) {
-          return response.data;
-        }
+        // SOLO map basico (sin resolver relaciones aun)
+        return espacios.map(item => ({
+          idEspacio: item.idEspacio,
+          nombre: item.nombre,
+          capacidad: item.capacidad,
+          habilitado: item.habilitado,
+          precioBase: item.precioBase,
+          permiteMediaReserva: item.permiteMediaReserva,
+          tipo: item.tipo,
 
-        if (Array.isArray(response?.espacios)) {
-          return response.espacios;
-        }
-
-        return [];
-      })
+          //importante: dejamos el ID guardado
+          canchaAsociada: null,
+          idCanchaAsociada: item.idCanchaAsociada
+        }));
+      }),
+      catchError(err => this.handleError(err))
     );
-  }
+}
 
   /**
    * Obtiene un espacio específico por ID
