@@ -21,8 +21,8 @@ export const authInterceptor = (
 
   // Evitar adjuntar token en endpoints de seguridad/registro o si ya exista Authorization
   const isAuthEndpoint =
-  request.url.endsWith('/seguridad/login') ||
-  request.url.endsWith('/usuarios/registro');
+  request.url.includes('/seguridad/login') ||
+  request.url.includes('/usuarios/registro');
   const hasAuthHeader = request.headers.has('Authorization');
 
   console.log('[authInterceptor] isAuthEndpoint=', isAuthEndpoint, ', hasAuthHeader=', hasAuthHeader, ', isValidToken=', isValidToken(token));
@@ -37,7 +37,7 @@ export const authInterceptor = (
   } else {
     console.log('[authInterceptor] ✗ Authorization header NOT attached (reason: validToken=' + isValidToken(token) + ' || isAuthEndpoint=' + isAuthEndpoint + ' || hasAuthHeader=' + hasAuthHeader + ')');
   }
-
+  const url = request.url;
   // Procesar la petición
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -45,7 +45,7 @@ export const authInterceptor = (
       if (error.status === 401) {
         console.log(' 401 recibido, PERO no borro token (debug)');
         // solo si NO es login
-        if (!request.url.includes('/seguridad/login')) {
+        if (!url.includes('/seguridad/login')) {
           localStorage.removeItem('auth_token');
         }
       }

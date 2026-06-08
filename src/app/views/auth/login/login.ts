@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core'; // 🔥 Agrega ChangeDetectorRef
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../service/auth.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -17,81 +18,68 @@ export class LoginComponent {
   isLoading: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
-
-  // Para mostrar/ocultar contraseña
   mostrarPassword: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private cdr: ChangeDetectorRef // 🔥 Inyectado aquí
+  ) {}
 
-  /**
-   * Realiza el login con las credenciales proporcionadas
-   * Backend requiere: Cédula + Contraseña
-   */
   login(): void {
-  if (!this.cedula || !this.contrasenia) {
-    this.errorMessage = 'Por favor completa cédula y contraseña';
-    return;
+    if (!this.cedula || !this.contrasenia) {
+      this.errorMessage = 'Por favor completa cédula y contraseña';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.login(this.cedula, this.contrasenia)
+    .pipe(
+      finalize(() => {
+        // 🔥 SIEMPRE se ejecuta (éxito o error)
+        this.isLoading = false;
+        this.cdr.detectChanges(); // 🔥 Obligamos al HTML a actualizar sus variables en pantalla
+      })
+    )
+    .subscribe({
+        next: (res) => {
+          const token = res?.token || res?.jwt || res?.accessToken;
+
+          if (token) {
+            localStorage.setItem('auth_token', token);
+          }
+
+          this.successMessage = 'Login exitoso. Redirigiendo...';
+
+          setTimeout(() => {
+            this.router.navigate(['/espacios']);
+          }, 500);
+        },
+
+        error: (err) => {
+          console.log('🔥 ERROR LLEGÓ AL COMPONENTE', err);
+
+          let mensaje = 'Error al iniciar sesión';
+
+          if (err.error?.message) {
+            mensaje = err.error.message;
+          }
+
+          if (err.status === 401) {
+            mensaje = mensaje || 'Usuario o contraseña incorrectos';
+          } else if (err.status === 403) {
+            mensaje = 'Acceso denegado';
+          }
+
+          this.errorMessage = mensaje; // Al asignarlo aquí, finalize detectará el cambio y repintará el html
+        }
+      });
   }
 
-  this.isLoading = true;
-  this.errorMessage = '';
-  this.successMessage = '';
-
-  this.authService.login(this.cedula, this.contrasenia).subscribe({
-      next: (res) => {
-        console.log('🔐 Login response:', res);
-
-        //GUARDAR TOKEN 
-        const token = res?.token || res?.jwt || res?.accessToken;
-
-        if (token) {
-          localStorage.setItem('auth_token', token);
-          console.log('Token guardado correctamente');
-        } else {
-          console.log('❌ No vino token en la respuesta');
-        }
-
-        this.successMessage = 'Login exitoso. Redirigiendo...';
-        this.isLoading = false;
-
-        // navegar DESPUES de guardar token
-        setTimeout(() => {
-          this.router.navigate(['/espacios']);
-        }, 500);
-      },
-      error: (err) => {
-        this.isLoading = false;
-
-        const status = err?.status;
-        const serverMsg = err?.error
-          ? (typeof err.error === 'string' ? err.error : JSON.stringify(err.error))
-          : null;
-
-        if (status === 403) {
-          this.errorMessage = 'Acceso denegado (403). Token inválido o credenciales incorrectas.';
-        } else {
-          this.errorMessage = serverMsg || err.message || 'Error al iniciar sesión.';
-        }
-
-        console.error('Error de login:', err);
-      }
-    });
-  }
-
-  /**
-   * Alterna la visibilidad de la contraseña
-   */
   togglePasswordVisibility(): void {
     this.mostrarPassword = !this.mostrarPassword;
   }
-
-  /**
-   * Maneja presionar Enter en los inputs
-   */
-  onKeyPress(event: any): void {
-    if (event.key === 'Enter') {
-      this.login();
-    }
-  }
 }
-

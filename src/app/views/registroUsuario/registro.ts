@@ -19,7 +19,7 @@ export class RegistroComponent {
     telefono: '',
     fechaNacimiento: '',
     cedula: '',
-    tipousuario: 'USUARIO', 
+    tipousuario: 'CLIENTE', 
     estadoUsuario: 'ACTIVO',
     contrasenia: '' 
   };
