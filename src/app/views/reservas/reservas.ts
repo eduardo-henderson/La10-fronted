@@ -16,6 +16,9 @@ import { AuthService } from '../../service/auth.service';
   styleUrls: ['./reservas.css']
 })
 export class ReservasComponent implements OnInit {
+  goHome(): void {
+    this.router.navigate(['/home']);
+  }
   reserva: Reserva = this.createDefaultReserva();
   listaEspacios: Espacio[] = [];
   reservas: Reserva[] = [];

@@ -26,6 +26,10 @@ export class RegistroComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
+  goHome(): void {
+    this.router.navigate(['/home']);
+  }
+
   onRegister() {
     console.log('Datos del usuario a registrar:', this.usuario); // 🔥 DEBUG
     // Aquí disparamos la petición al backend al presionar el botón

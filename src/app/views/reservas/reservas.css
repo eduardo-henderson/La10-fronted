@@ -17,6 +17,23 @@
   flex-wrap: wrap;
 }
 
+.btn-back {
+  background-color: #c0392b;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background-color: #a93226;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(192, 57, 43, 0.3);
+}
+
 .content-reservas {
   display: grid;
   grid-template-columns: 1fr 1fr;

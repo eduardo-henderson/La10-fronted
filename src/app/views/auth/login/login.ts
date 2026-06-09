@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core'; // 🔥 Agrega ChangeDetectorRef
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; // 🔥 Agrega OnInit
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,7 +12,7 @@ import { finalize } from 'rxjs/operators';
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   cedula: string = '';
   contrasenia: string = '';
   isLoading: boolean = false;
@@ -25,6 +25,16 @@ export class LoginComponent {
     private router: Router,
     private cdr: ChangeDetectorRef // 🔥 Inyectado aquí
   ) {}
+
+  ngOnInit(): void {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/home']);
+    }
+  }
+
+  goHome(): void {
+    this.router.navigate(['/home']);
+  }
 
   login(): void {
     if (!this.cedula || !this.contrasenia) {
@@ -55,7 +65,7 @@ export class LoginComponent {
           this.successMessage = 'Login exitoso. Redirigiendo...';
 
           setTimeout(() => {
-            this.router.navigate(['/espacios']);
+            this.router.navigate(['/home']);
           }, 500);
         },
 

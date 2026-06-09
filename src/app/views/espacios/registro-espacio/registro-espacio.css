@@ -23,6 +23,7 @@
   font-size: 32px;
 }
 
+.btn-back,
 .btn-logout {
   background-color: #c0392b;
   color: white;
@@ -34,11 +35,13 @@
   transition: all 0.3s ease;
 }
 
+.btn-back:hover,
 .btn-logout:hover {
   background-color: #a93226;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(192, 57, 43, 0.3);
 }
+
 
 /* Alertas */
 .alert {

@@ -47,6 +47,24 @@
   margin: 0;
 }
 
+.btn-back-top {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #c0392b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 0 1rem 0;
+  transition: color 0.3s ease;
+  margin-bottom: 0.5rem;
+}
+
+.btn-back-top:hover {
+  color: #e40b0b;
+  text-decoration: underline;
+}
+
 /* Alertas */
 .alert {
   padding: 12px 15px;

@@ -181,5 +181,9 @@ export class RegistroEspacioComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  goHome(): void {
+    this.router.navigate(['/home']);
+  }
 }
 
