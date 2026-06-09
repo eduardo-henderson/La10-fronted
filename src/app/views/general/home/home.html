@@ -1,30 +1,32 @@
 <div class="home-page">
   <div class="welcome-card">
-     <!-- contenedor para agrupar el logo y el titulo principales -->
+    <!-- contenedor para agrupar el logo y el titulo principales -->
     <div class="header-container">
       <!--logo local -->
-      <img src="logo.jpg" alt="logo la10" class="main-logo">
+      <img src="logo.jpg" alt="logo la10" class="main-logo" />
       <h1>Bienvenido a La10</h1>
     </div>
     <p>Vivi tu partido Reserva la mejor cancha</p>
 
     <p class="login-warning" *ngIf="shouldWarnLogin">
-       Inicia sesión para acceder a todas las funciones
+      Inicia sesión para acceder a todas las funciones
     </p>
 
     <p class="success-message" *ngIf="!shouldWarnLogin">
-       <!-- aca queda la etiqueta de la imagen de la pelota local -->
-       <img src="pelota.png" alt="pelota la10" class="success-ball">
-       <span class="message-text">¡Sesión Iniciada BIENVENIDO!</span>
+      <!-- aca queda la etiqueta de la imagen de la pelota local -->
+      <img src="pelota.png" alt="pelota la10" class="success-ball" />
+      <span class="message-text">¡Sesión Iniciada BIENVENIDO!</span>
     </p>
 
     <div class="button-grid">
       <a
         class="nav-button"
+        [class.nav-button-admin]="item.admin"
         *ngFor="let item of menu"
         [routerLink]="getLink(item.path)"
         (click)="handleClick(item)"
-        [attr.aria-label]="item.text">
+        [attr.aria-label]="item.text"
+      >
         <!-- aca se cambie el texto plano por las clases del icono de git para que no sean iconos tipo emojis chotos -->
         <i class="icon" [ngClass]="item.icon"></i>
         <span>{{ item.text }}</span>

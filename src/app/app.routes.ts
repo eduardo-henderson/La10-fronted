@@ -5,6 +5,7 @@ import { RegistroEspacioComponent } from './views/espacios/registro-espacio/regi
 import { ReservasComponent } from './views/reservas/reservas';
 import { Disponibilidad } from './views/disponibilidad/disponibilidad';
 import { RegistroComponent } from './views/registroUsuario/registro';
+import { AdminComponent } from './views/admin/admin';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -15,6 +16,5 @@ export const routes: Routes = [
   { path: 'espacios', component: RegistroEspacioComponent },
   { path: 'reservas', component: ReservasComponent },
   { path: 'disponibilidad', component: Disponibilidad },
+  { path: 'admin', component: AdminComponent },
 ];
-
-

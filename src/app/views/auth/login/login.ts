@@ -10,7 +10,7 @@ import { finalize } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.css'],
 })
 export class LoginComponent implements OnInit {
   cedula: string = '';
@@ -21,9 +21,9 @@ export class LoginComponent implements OnInit {
   mostrarPassword: boolean = false;
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef // 🔥 Inyectado aquí
+    private cdr: ChangeDetectorRef, // 🔥 Inyectado aquí
   ) {}
 
   ngOnInit(): void {
@@ -46,20 +46,24 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.authService.login(this.cedula, this.contrasenia)
-    .pipe(
-      finalize(() => {
-        // 🔥 SIEMPRE se ejecuta (éxito o error)
-        this.isLoading = false;
-        this.cdr.detectChanges(); // 🔥 Obligamos al HTML a actualizar sus variables en pantalla
-      })
-    )
-    .subscribe({
+    this.authService
+      .login(this.cedula, this.contrasenia)
+      .pipe(
+        finalize(() => {
+          // 🔥 SIEMPRE se ejecuta (éxito o error)
+          this.isLoading = false;
+          this.cdr.detectChanges(); // 🔥 Obligamos al HTML a actualizar sus variables en pantalla
+        }),
+      )
+      .subscribe({
         next: (res) => {
           const token = res?.token || res?.jwt || res?.accessToken;
 
           if (token) {
             localStorage.setItem('auth_token', token);
+          }
+          if (res?.tipoUsuario) {
+            localStorage.setItem('user_role', res.tipoUsuario); // Almacena el rol del usuario para admin panel o funcionalidades especificas a un rol
           }
 
           this.successMessage = 'Login exitoso. Redirigiendo...';
@@ -85,7 +89,7 @@ export class LoginComponent implements OnInit {
           }
 
           this.errorMessage = mensaje; // Al asignarlo aquí, finalize detectará el cambio y repintará el html
-        }
+        },
       });
   }
 

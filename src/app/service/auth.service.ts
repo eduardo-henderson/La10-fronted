@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-  // BehaviorSubject para mantener el estado de autenticación en tiempo real
+// BehaviorSubject para mantener el estado de autenticación en tiempo real
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   // URL base: usamos las rutas absolutas que comienzan en /api porque
@@ -26,13 +26,10 @@ export class AuthService {
    * @returns Observable con la respuesta del login (contiene el token)
    */
   login(usuario: string, password: string): Observable<any> {
-  const params = new HttpParams()
-    .set('usuario', usuario)
-    .set('password', password);
+    const params = new HttpParams().set('usuario', usuario).set('password', password);
 
-  return this.http.post<any>(`/api/version1/seguridad/login`, {}, { params })
-    .pipe(
-      tap(response => {
+    return this.http.post<any>(`/api/version1/seguridad/login`, {}, { params }).pipe(
+      tap((response) => {
         console.log('LOGIN RESPONSE:', response); // 🔥 DEBUG
 
         //BACKEND DEVUELVE { token: "...", message: "..." }
@@ -47,9 +44,9 @@ export class AuthService {
         } else {
           console.log('NO SE ENCONTRÓ TOKEN EN LA RESPUESTA');
         }
-      })
+      }),
     );
-}
+  }
 
   /**
    * Registra un nuevo usuario
@@ -99,5 +96,13 @@ export class AuthService {
    */
   isAuthenticated(): boolean {
     return this.hasToken();
+  }
+
+  getRole(): string | null {
+    return localStorage.getItem('user_role'); // Devuelve el rol del usuario almacenado en localStorage, o null si no existe
+  }
+
+  isAdmin(): boolean {
+    return this.getRole() === 'ADMINISTRADOR';
   }
 }

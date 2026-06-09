@@ -170,6 +170,14 @@
   display: inline-block;
 }
 
+.nav-button-admin {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+.nav-button-admin:hover {
+  background: linear-gradient(135deg, #000000 0%, #c0392b 100%);
+}
+
 /* responsive para celulares y tablets */
 @media (max-width: 768px) {
   .welcome-card {
