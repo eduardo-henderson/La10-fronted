@@ -1,6 +1,70 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  /* Colores  */
+  --color-principal: #dd2e1d;
+  --color-principal-oscuro: #a01003;
+  --color-principal-claro: #fc4f3f;
+  --color-principal-suave: rgba(221, 46, 29, 0.12);
+
+  /* Texto */
+  --color-texto: #1c1c1f;
+  --color-texto-secundario: #6b7280;
+  --color-texto-suave: #9ca3af;
+  --color-texto-blanco: #ffffff;
+
+  /* Fondos */
+  --color-fondo: #f5f5f6;
+  --color-superficie: #ffffff;
+  --color-superficie-diferente: #fafafa;
+  --color-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Borde */
+  --color-borde: #e6e6e8;
+
+  /* Estados */
+  --color-exito: #16a34a;
+  --color-exito-fondo: #dcfce7;
+  --color-exito-texto: #166534;
+  --color-error: #dc2626;
+  --color-error-fondo: #fee2e2;
+  --color-error-texto: #991b1b;
+  --color-advertencia: #d97706;
+  --color-advertencia-fondo: #fef3c7;
+  --color-advertencia-texto: #92400e;
+
+  /* Parte admin panel  */
+  --color-oscuro: #18181b;
+  --color-oscuro-alt: #202024;
+  --color-oscuro-borde: #2a2a2f;
+  --color-oscuro-texto: #a1a1aa;
+
+  /* Sombra */
+  --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --sombra-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --sombra-lg: 0 10px 40px rgba(0, 0, 0, 0.2);
+  --sombra-principal: 0 5px 20px rgba(221, 46, 29, 0.35);
+
+  /* Radio de botones */
+  --radio-sm: 6px;
+  --radio-md: 8px;
+  --radio-lg: 12px;
+  --radio-full: 999px;
+
+  /* Letras */
+  --fuente-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --fuente-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
+  font-family: var(--fuente-base);
+  color: var(--color-texto);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }

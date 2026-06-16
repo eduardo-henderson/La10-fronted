@@ -1,0 +1,60 @@
+<div class="layout">
+  <header class="navbar">
+    <a class="navbar-izquierda" routerLink="/home">
+      <img src="logo.jpg" alt="La10" class="navbar-icono" />
+      <span class="navbar-nombre">La10</span>
+    </a>
+
+    <div class="navbar-derecha">
+      <!-- no logueado -->
+      <div *ngIf="!estaLogueado" class="navbar-acciones">
+        <button class="btn-registro" (click)="irARegistro()">Registrarse</button>
+        <button class="btn-login" (click)="irALogin()">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Iniciar sesión
+        </button>
+      </div>
+
+      <!-- logueado -->
+      <div *ngIf="estaLogueado" class="perfil-afuera">
+        <button class="btn-perfil" (click)="alternarMenuPerfil()" title="Mi perfil">
+          <i class="bi bi-person-circle"></i>
+        </button>
+
+        <div class="dropdown-perfil" *ngIf="menuPerfilAbierto">
+          <a class="dropdown-item" routerLink="/perfil">
+            <i class="bi bi-person"></i>
+            Mi perfil
+          </a>
+          <button class="dropdown-item dropdown-item-salir" (click)="cerrarSesion()">
+            <i class="bi bi-box-arrow-left"></i>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout-cuerpo">
+    <!-- menu al costado -->
+    <aside class="sidemenu">
+      <nav class="sidemenu-lista">
+        <a
+          *ngFor="let item of itemsVisibles"
+          class="sidemenu-item"
+          [routerLink]="item.ruta"
+          routerLinkActive="active"
+        >
+          <span class="sidemenu-barra"></span>
+          <i [ngClass]="item.icono"></i>
+          <span class="sidemenu-texto">{{ item.texto }}</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Contenido de la pagina -->
+    <main class="layout-contenido">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
