@@ -8,6 +8,7 @@ interface ItemMenu {
   ruta: string;
   icono: string;
   soloLogueado?: boolean;
+  soloAdmin?: boolean;
 }
 
 @Component({
@@ -24,17 +25,30 @@ export class LayoutComponent {
 
   // items del sidebar, los "soloLogueado" se muestran solo si el usuario está logueado
   itemsMenu: ItemMenu[] = [
-    { texto: 'Canchas', ruta: '/disponibilidad', icono: 'bi bi-calendar2-check' },
+    { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
     { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
+    {
+      texto: 'Disponibilidad',
+      ruta: '/disponibilidad',
+      icono: 'bi bi-calendar2-range',
+      soloAdmin: true,
+    },
   ];
 
   get itemsVisibles(): ItemMenu[] {
     const logueado = this.auth.isAuthenticated();
-    return this.itemsMenu.filter((item) => !item.soloLogueado || logueado);
+    const admin = this.auth.isAdmin();
+    return this.itemsMenu.filter(
+      (item) => (!item.soloLogueado || logueado) && (!item.soloAdmin || admin),
+    );
   }
 
   get estaLogueado(): boolean {
     return this.auth.isAuthenticated();
+  }
+
+  get esadmin(): boolean {
+    return this.auth.isAdmin();
   }
 
   alternarMenuPerfil(): void {

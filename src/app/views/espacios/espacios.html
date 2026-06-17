@@ -1,0 +1,49 @@
+<div class="espacios-page">
+  <header class="espacios-titulo">
+    <h1>Espacios</h1>
+    <p class="espacios-sub">Elegí una cancha o salón para ver horarios y reservar.</p>
+    <hr class="rounded" />
+  </header>
+
+  <div *ngIf="cargando" class="estado">
+    <span class="spinner"></span>
+    <p>Cargando espacios...</p>
+  </div>
+
+  <div *ngIf="!cargando && mensajeError" class="estado estado-error">
+    <p>{{ mensajeError }}</p>
+  </div>
+
+  <ng-container *ngIf="!cargando && !mensajeError">
+    <section class="espacios-seccion">
+      <h2 class="seccion-titulo">Canchas</h2>
+      <ng-container *ngTemplateOutlet="grid; context: { lista: canchas }"></ng-container>
+      <!-- Las canchas vienen por el getter espacios.ts -->
+    </section>
+
+    <section class="espacios-seccion">
+      <h2 class="seccion-titulo">Salones</h2>
+      <ng-container *ngTemplateOutlet="grid; context: { lista: salones }"></ng-container>
+    </section>
+  </ng-container>
+</div>
+
+<!-- grid -->
+<ng-template #grid let-datoslista="lista">
+  <p *ngIf="datoslista.length === 0" class="seccion-vacia">
+    No hay espacios disponibles en esta categoría.
+  </p>
+
+  <div *ngIf="datoslista.length > 0" class="espacios-grid">
+    <button *ngFor="let espacio of datoslista" class="espacio-item" (click)="abrirEspacio(espacio)">
+      <div class="grid-item-imagen">
+        <i class="bi bi-image"></i>
+      </div>
+      <div class="grid-item-cuerpo">
+        <h3 class="grid-item-nombre">{{ espacio.nombre }}</h3>
+        <p class="grid-item-detalle">{{ detalle(espacio) }}</p>
+        <p class="grid-item-precio">${{ espacio.precioBase }}</p>
+      </div>
+    </button>
+  </div>
+</ng-template>

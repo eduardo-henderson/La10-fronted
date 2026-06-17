@@ -37,12 +37,11 @@ export class AuthService {
 
         if (typeof token === 'string' && token.trim()) {
           this.setToken(token);
-
-          console.log('TOKEN GUARDADO:', token);
-
           this.isAuthenticatedSubject.next(true);
-        } else {
-          console.log('NO SE ENCONTRÓ TOKEN EN LA RESPUESTA');
+
+          if (response?.tipoUsuario) {
+            localStorage.setItem('user_role', response.tipoUsuario);
+          }
         }
       }),
     );
@@ -87,6 +86,7 @@ export class AuthService {
    */
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem('user_role');
     this.isAuthenticatedSubject.next(false);
   }
 
