@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+//import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { Reserva } from '../models/reserva.model';
@@ -12,8 +13,24 @@ export class ReservaService {
 
   constructor(private http: HttpClient) {}
 
-  listarReservas(): Observable<Reserva[]> {
-    return this.http.get<Reserva[]>(`${this.apiUrl}/listar`).pipe(
+  //cancelar reserva
+  cancelarReserva(reserva: any): Observable<any> {
+  //mandamos el objeto reserva completo (que incluye idReserva y motivoCanc)
+  return this.http.put<any>(`/api/version1/reservas/cancelar`, reserva).pipe(
+    catchError(err => this.handleError(err))
+  );
+}
+  
+ //obtiene la ocupacion (MEDIA / COMPLETA) de todos los espacios en un rango de fechas
+obtenerReservasActivas(): Observable<any> {
+  //interceptor.ts añade automaticamente tu token Bearer
+  return this.http.get<any>(`/api/version1/reservas/obtenerreservasactivas`).pipe(
+    catchError(err => this.handleError(err))
+  );
+}
+
+  listarReservas(idUsuario: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reservasporusuario/${idUsuario}`).pipe(
       catchError(err => this.handleError(err))
     );
   }
@@ -26,7 +43,6 @@ export class ReservaService {
 
   reservar(reserva: Reserva): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/reservar`, reserva).pipe(
-      // Si el backend no responde en 10s, forzamos un error para evitar bloqueo en UI
       timeout(10000),
       catchError(err => this.handleError(err))
     );

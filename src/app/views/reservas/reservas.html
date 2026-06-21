@@ -1,167 +1,74 @@
-<div class="container-reservas">
-  <div class="header-reservas">
-    <button (click)="goHome()" class="btn btn-back" title="Volver a inicio">
-      ← Atrás
-    </button>
-    <h1>Reservas</h1>
-    <div class="header-actions">
-      <button class="btn btn-secondary" (click)="logout()">Cerrar sesión</button>
-      <a class="btn btn-primary" routerLink="/espacios">Ir a Espacios</a>
+<div class="reservas-page-container">
+  <div class="reservas-box">
+    
+    <div class="header-reservas">
+      <button (click)="goHome()" class="btn-back-top" title="Volver a inicio">
+        ← Volver a Inicio
+      </button>
+      <h1>Mis Reservas</h1>
     </div>
-  </div>
 
-  <div *ngIf="errorMessage" class="alert alert-error">
-    <strong>⚠️ Error:</strong> {{ errorMessage }}
-  </div>
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <strong>⚠️ Error:</strong> {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success">
+      <strong>✅ Éxito:</strong> {{ successMessage }}
+    </div>
 
-  <div *ngIf="successMessage" class="alert alert-success">
-    <strong>✓ Éxito:</strong> {{ successMessage }}
-  </div>
-
-  <div class="content-reservas">
-    <section class="form-section">
-      <h2>Nueva reserva</h2>
-      <form (ngSubmit)="guardarReserva(reservaForm)" #reservaForm="ngForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Espacio *</label>
-            <select
-              class="form-select"
-              name="idEspacio"
-              [(ngModel)]="reserva.idEspacio"
-              [disabled]="isSaving || isLoadingEspacios"
-              required
-            >
-              <option [ngValue]="0">Selecciona un espacio</option>
-              <option *ngFor="let espacio of listaEspacios" [ngValue]="espacio.idEspacio">
-                {{ espacio.nombre }} ({{ espacio.tipo }})
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Fecha *</label>
-            <input
-              type="date"
-              class="form-control"
-              name="fecha"
-              [(ngModel)]="reserva.fecha"
-              [disabled]="isSaving"
-              required
-            />
-          </div>
+    <div class="content-reservas">
+      <section class="list-section">
+        
+        <div *ngIf="isLoadingReservas" class="loading-spinner">
+          Cargando tus reservas...
+        </div>
+        
+        <div *ngIf="!isLoadingReservas && reservas.length === 0" class="empty-state">
+          <p>No tienes reservas registradas en este momento.</p>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Hora de inicio *</label>
-            <input
-              type="time"
-              class="form-control"
-              name="horaInicio"
-              [(ngModel)]="reserva.horaInicio"
-              [disabled]="isSaving"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Duración (horas) *</label>
-            <input
-              type="number"
-              class="form-control"
-              name="duracionHoras"
-              [(ngModel)]="reserva.duracionHoras"
-              min="1"
-              [disabled]="isSaving"
-              required
-            />
-          </div>
-        </div>
-
-        <div class="form-group checkbox">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            id="conMediaReserva"
-            [(ngModel)]="reserva.conMediaReserva"
-            name="conMediaReserva"
-            [disabled]="isSaving"
-          />
-          <label class="form-check-label" for="conMediaReserva">Reserva con media hora adicional / media reserva</label>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="isSaving || !reservaForm.form.valid">
-            <span *ngIf="!isSaving">Reservar</span>
-            <span *ngIf="isSaving">Reservando...</span>
-          </button>
-          <button type="button" class="btn btn-secondary" (click)="limpiarFormulario()" [disabled]="isSaving">
-            Limpiar
-          </button>
-        </div>
-      </form>
-    </section>
-
-    <section class="list-section">
-      <h2>Reservas existentes</h2>
-
-      <div *ngIf="isLoadingReservas" class="loading-spinner">Cargando reservas...</div>
-      <div *ngIf="!isLoadingReservas && reservas.length === 0" class="empty-state">
-        <p>No hay reservas registradas todavía.</p>
-      </div>
-
-      <div *ngIf="!isLoadingReservas && reservas.length > 0" class="reservas-grid">
-        <div *ngFor="let reserva of reservas" class="reserva-card">
-          <div class="reserva-header">
-            <h3>{{ getEspacioNombre(reserva.idEspacio) }}</h3>
-            <span>{{ reserva.fecha }} {{ reserva.horaInicio }}</span>
-          </div>
-          <div class="reserva-info">
-            <p><strong>Duración:</strong> {{ reserva.duracionHoras }} hora(s)</p>
-            <p><strong>Media reserva:</strong> {{ reserva.conMediaReserva ? 'Sí' : 'No' }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="list-section">
-      <h2>Espacios y disponibilidad</h2>
-
-      <div *ngIf="isLoadingDisponibilidad" class="loading-spinner">Cargando disponibilidad...</div>
-      <div *ngIf="!isLoadingDisponibilidad && disponibilidad.length === 0" class="empty-state">
-        <p>No se encontraron datos de disponibilidad.</p>
-      </div>
-
-      <div *ngIf="!isLoadingDisponibilidad && disponibilidad.length > 0" class="disponibilidad-grid">
-        <div *ngFor="let item of disponibilidad" class="disponibilidad-card">
-          <div class="disponibilidad-header">
-            <h3>{{ getAvailabilityName(item) }}</h3>
-            <span *ngIf="getAvailabilityType(item)">Tipo: {{ getAvailabilityType(item) }}</span>
-          </div>
-          <p *ngIf="getAssociatedSpaceName(item)"><strong>Salón asociado:</strong> {{ getAssociatedSpaceName(item) }}</p>
-          <p *ngIf="item.fecha"><strong>Fecha:</strong> {{ item.fecha }}</p>
-          <p *ngIf="item.dias && item.dias.length"><strong>Días disponibles:</strong> {{ item.dias.join(', ') }}</p>
-          <p *ngIf="getAvailabilityNote(item)"><strong>Estado:</strong> {{ getAvailabilityNote(item) }}</p>
-
-          <div *ngIf="hasHorarioOptions(item)" class="horarios-list">
-            <strong>Horarios:</strong>
-            <div class="hora-buttons">
-              <ng-container *ngFor="let horario of getHorarioOptions(item)">
-                <button type="button" class="btn btn-outline-secondary"
-                  (click)="seleccionarHorario(item, horario)">
-                  {{ horario }}
-                </button>
-              </ng-container>
+        <div *ngIf="!isLoadingReservas && reservas.length > 0" class="reservas-grid">
+          <div *ngFor="let item of reservas" class="reserva-card">
+            
+            <div class="reserva-header">
+              <h3>{{ getEspacioNombre(item.idEspacio) }}</h3>
+              <span class="reserva-time">
+                {{ item.horaInicio | date:'dd/MM/yyyy' }} | 
+                {{ item.horaInicio | date:'HH:mm' }} a {{ item.horaFin | date:'HH:mm' }}
+              </span>
             </div>
-          </div>
 
-          <div *ngIf="!hasHorarioOptions(item)" class="empty-state">
-            <p>No hay horarios detallados disponibles.</p>
+            <div class="reserva-info">
+              <p><strong>Tipo:</strong> {{ item.tipoDeReserva }}</p>
+              <p><strong>Precio Total:</strong> <span class="reserva-price">${{ item.precioTotal }}</span></p>
+             
+              <p>
+                <strong>Estado:</strong> 
+                <span class="estado-tag" [attr.data-estado]="item.estadoDeReserva">
+                  {{ item.estadoDeReserva }}
+                </span>
+              </p>
+
+              <p *ngIf="item.necesitaRival" class="tag-rival">
+                ⚠️ <em>Requiere rival</em>
+              </p>
+
+              <div class="reserva-actions" *ngIf="item.estadoDeReserva !== 'CANCELADO'">
+                <button class="btn-cancelar-reserva" (click)="cancelarReserva(item)">
+                  ❌ Cancelar Reserva
+                </button>
+              </div>
+
+           </div>
+
           </div>
         </div>
-      </div>
-    </section>
+
+      </section>
+    </div>
+
+    <div class="reservas-footer">
+      <p class="info-text">Sistema de Reservas - La 10</p>
+    </div>
 
   </div>
 </div>
