@@ -4,9 +4,10 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Espacio } from '../models/espacio.model';
 import { EspacioDisponibilidad } from '../models/espacio-disponibilidad.model';
+import { EspacioReservado } from '../models/ocupacion.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EspacioService {
   // Usamos el proxy definido en proxy.conf.json para evitar CORS y mantener la misma base de origen
@@ -32,7 +33,7 @@ export class EspacioService {
         }
 
         // SOLO map basico (sin resolver relaciones aun)
-        return espacios.map(item => ({
+        return espacios.map((item) => ({
           idEspacio: item.idEspacio,
           nombre: item.nombre,
           capacidad: item.capacidad,
@@ -43,12 +44,12 @@ export class EspacioService {
 
           //importante: dejamos el ID guardado
           canchaAsociada: null,
-          idCanchaAsociada: item.idCanchaAsociada
+          idCanchaAsociada: item.idCanchaAsociada,
         }));
       }),
-      catchError(err => this.handleError(err))
+      catchError((err) => this.handleError(err)),
     );
-}
+  }
 
   /**
    * Obtiene un espacio específico por ID
@@ -56,9 +57,9 @@ export class EspacioService {
    * @returns Observable con el espacio solicitado
    */
   obtenerEspacio(id: number): Observable<Espacio> {
-    return this.http.get<Espacio>(`${this.apiUrl}/BuscarEspacioForId/${id}`).pipe(
-      catchError(err => this.handleError(err))
-    );
+    return this.http
+      .get<Espacio>(`${this.apiUrl}/BuscarEspacioForId/${id}`)
+      .pipe(catchError((err) => this.handleError(err)));
   }
 
   /**
@@ -67,9 +68,9 @@ export class EspacioService {
    * @returns Observable con el espacio creado
    */
   registrarEspacio(espacio: Espacio): Observable<Espacio> {
-    return this.http.post<Espacio>(`${this.apiUrl}/Nuevoespacio`, espacio).pipe(
-      catchError(err => this.handleError(err))
-    );
+    return this.http
+      .post<Espacio>(`${this.apiUrl}/Nuevoespacio`, espacio)
+      .pipe(catchError((err) => this.handleError(err)));
   }
 
   /**
@@ -79,9 +80,9 @@ export class EspacioService {
    * @returns Observable con el espacio actualizado
    */
   actualizarEspacio(id: number, espacio: Espacio): Observable<Espacio> {
-    return this.http.put<Espacio>(`${this.apiUrl}/${id}`, espacio).pipe(
-      catchError(err => this.handleError(err))
-    );
+    return this.http
+      .put<Espacio>(`${this.apiUrl}/${id}`, espacio)
+      .pipe(catchError((err) => this.handleError(err)));
   }
 
   /**
@@ -90,9 +91,9 @@ export class EspacioService {
    * @returns Observable vacío
    */
   desactivarEspacio(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/mantenimiento`, {}).pipe(
-      catchError(err => this.handleError(err))
-    );
+    return this.http
+      .patch<void>(`${this.apiUrl}/${id}/mantenimiento`, {})
+      .pipe(catchError((err) => this.handleError(err)));
   }
 
   /**
@@ -110,7 +111,8 @@ export class EspacioService {
       // Error del servidor
       switch (error.status) {
         case 0:
-          errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté ejecutándose.';
+          errorMessage =
+            'No se puede conectar al servidor. Verifica que el backend esté ejecutándose.';
           break;
         case 400:
           errorMessage = `Solicitud inválida: ${error.error?.message || 'Revisa los datos enviados'}`;
@@ -137,12 +139,16 @@ export class EspacioService {
   }
 
   getDisponibilidadHoy(tipo: string) {
-    return this.http.get<EspacioDisponibilidad[]>(
-      `${this.apiUrl}/disponibilidad/hoy?tipo=${tipo}`
-    ).pipe(
-      catchError(err => this.handleError(err))
-    );
+    return this.http
+      .get<EspacioDisponibilidad[]>(`${this.apiUrl}/disponibilidad/hoy?tipo=${tipo}`)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
+  obtenerOcupacionSemana(idEspacio: number, inicioSemana: string): Observable<EspacioReservado> {
+    return this.http
+      .get<EspacioReservado>(
+        `${this.apiUrl}/${idEspacio}/ocupacion-semana?inicioSemana=${inicioSemana}`,
+      )
+      .pipe(catchError((err) => this.handleError(err)));
   }
 }
-
-

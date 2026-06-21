@@ -3,9 +3,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { Reserva } from '../models/reserva.model';
+import { NuevaReserva } from '../models/ocupacion.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ReservaService {
   private apiUrl = '/api/version1/reservas';
@@ -13,22 +14,29 @@ export class ReservaService {
   constructor(private http: HttpClient) {}
 
   listarReservas(): Observable<Reserva[]> {
-    return this.http.get<Reserva[]>(`${this.apiUrl}/listar`).pipe(
-      catchError(err => this.handleError(err))
-    );
+    return this.http
+      .get<Reserva[]>(`${this.apiUrl}/listar`)
+      .pipe(catchError((err) => this.handleError(err)));
   }
 
   disponibilidad(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/disponibilidad`).pipe(
-      catchError(err => this.handleError(err))
-    );
+    return this.http
+      .get<any>(`${this.apiUrl}/disponibilidad`)
+      .pipe(catchError((err) => this.handleError(err)));
   }
 
   reservar(reserva: Reserva): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/reservar`, reserva).pipe(
       // Si el backend no responde en 10s, forzamos un error para evitar bloqueo en UI
       timeout(10000),
-      catchError(err => this.handleError(err))
+      catchError((err) => this.handleError(err)),
+    );
+  }
+
+  crearReserva(payload: NuevaReserva): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/reservar`, payload).pipe(
+      timeout(10000),
+      catchError((err) => this.handleError(err)),
     );
   }
 
@@ -40,7 +48,8 @@ export class ReservaService {
     } else {
       switch (error.status) {
         case 0:
-          errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté ejecutándose.';
+          errorMessage =
+            'No se puede conectar al servidor. Verifica que el backend esté ejecutándose.';
           break;
         case 400:
           errorMessage = `Solicitud inválida: ${error.error?.message || 'Revisa los datos enviados.'}`;
