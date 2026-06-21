@@ -1,0 +1,118 @@
+<mat-sidenav-container class="app-container">
+  
+  <mat-sidenav mode="side" opened class="app-sidebar">
+    <div class="user-profile">
+      <h3>Hola, Juan Pérez</h3>
+      <p>Cliente VIP</p>
+    </div>
+    
+    <mat-divider></mat-divider>
+
+    <mat-nav-list>
+      <a mat-list-item routerLink="/menu">
+        <mat-icon matListItemIcon>home</mat-icon>
+        <span matListItemTitle>Inicio</span>
+      </a>
+      <a mat-list-item routerLink="/reservar-cancha">
+        <mat-icon matListItemIcon>sports_soccer</mat-icon>
+        <span matListItemTitle>Reservar Cancha</span>
+      </a>
+      <a mat-list-item routerLink="/reservar-salones">
+        <mat-icon matListItemIcon>meeting_room</mat-icon>
+        <span matListItemTitle>Reservar Salones</span>
+      </a>
+      <a mat-list-item routerLink="/mis-reservas">
+        <mat-icon matListItemIcon>event_available</mat-icon>
+        <span matListItemTitle>Mis Reservas</span>
+      </a>
+      <a mat-list-item routerLink="/mis-datos">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <span matListItemTitle>Mis Datos</span>
+      </a>
+      <a mat-list-item routerLink="/promos">
+        <mat-icon matListItemIcon>local_offer</mat-icon>
+        <span matListItemTitle>Promos</span>
+      </a>
+      <a mat-list-item routerLink="/acerca-de">
+        <mat-icon matListItemIcon>info</mat-icon>
+        <span matListItemTitle>Acerca de nosotros</span>
+      </a>
+      
+      <mat-divider></mat-divider>
+      
+      <a mat-list-item (click)="cerrarSesion()" class="logout-btn">
+        <mat-icon matListItemIcon color="warn">logout</mat-icon>
+        <span matListItemTitle>Cerrar Sesión</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <div class="toolbar-brand">
+        <img src="images/logola10.jpg" alt="Logo La 10" class="toolbar-logo">
+        <span>Sistema de Reservas - La 10</span>
+      </div>
+      <span class="spacer"></span>
+      <button mat-icon-button>
+        <mat-icon>notifications</mat-icon>
+      </button>
+  </mat-toolbar>
+
+    <div class="main-content">
+      
+      <div class="home-container">
+        
+        <div class="hero-banner">
+          <div class="hero-overlay">
+            <h1>¡Disfruta de nuestras instalaciones!</h1>
+            <p>Reserva tu lugar en pocos clics de manera rápida y segura.</p>
+          </div>
+        </div>
+
+        <div class="action-cards">
+          
+          <mat-card class="action-card">
+            <mat-card-header>
+              <mat-card-title>Canchas Deportivas</mat-card-title>
+              <mat-card-subtitle>Fútbol 5, Futbol 7 y Churrasqueras</mat-card-subtitle>
+            </mat-card-header>
+            <img mat-card-image src="https://scontent.fmvd2-2.fna.fbcdn.net/v/t1.6435-9/71910663_2484367528501446_5991896621107904512_n.jpg?stp=dst-jpg_tt6&cstp=mx1000x750&ctp=s1000x750&_nc_cat=106&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=c3f7w8Ifp4kQ7kNvwGmtd-W&_nc_oc=AdowM5l7KZElrLXSWvN7-Pgg6Qine8er_OlTgadTs3mBU4WT_kpkCz7BpZUwarQBdOHZCJkFZwdnfyaR7uVngQrN&_nc_zt=23&_nc_ht=scontent.fmvd2-2.fna&_nc_gid=l3cgoZj9ya0vmxYGD43yFw&_nc_ss=7b289&oh=00_Af8Wb9kPPwWaLOaM659Er-U768zrLtKEwFtxt4EYT0IVDA&oe=6A4E7A36" alt="Cancha de fútbol">
+            <mat-card-content>
+              <p>Disponemos de canchas con césped sintético e iluminación y se peude reservar una churrasquera.</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-raised-button color="primary" routerLink="/disponibilidad">
+                <mat-icon>sports_soccer</mat-icon> RESERVAR CANCHA PARA HOY
+              </button>
+              <button mat-raised-button color="primary" routerLink="/disponibilidad">
+                <mat-icon>sports_soccer</mat-icon> RESERVAR CANCHA PARA OTRO DÍA
+              </button>
+            </mat-card-actions>
+          </mat-card>
+
+          <mat-card class="action-card">
+            <mat-card-header>
+              <mat-card-title>Salones de Eventos</mat-card-title>
+              <mat-card-subtitle>Cumpleaños y Reuniones</mat-card-subtitle>
+            </mat-card-header>
+            <img mat-card-image src="https://scontent.fmvd4-1.fna.fbcdn.net/v/t39.30808-6/568635877_1231058259040421_7938911308376363725_n.jpg?stp=dst-jpg_tt6&cstp=mx1440x1082&ctp=s1440x1082&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=q23kTEDmAGUQ7kNvwF5wM6e&_nc_oc=AdqLuci1QT5ILl_gIDHW4qeFmGns1VfHdDHVpM8NxGQtGqVnG4Rc-NXq4bTv3OVR3yfyZ3CkkHq2LAsFsGYf2BEq&_nc_zt=23&_nc_ht=scontent.fmvd4-1.fna&_nc_gid=7LGVwNQE1rVKLqLQJowY_g&_nc_ss=7b289&oh=00_Af9SM1g-gR8a6GSb75Q8TI5N6M2vHbfdTU5njydegvX_Kw&oe=6A2D07BB" alt="Salón de eventos">
+            <mat-card-content>
+              <p>Salones completamente equipados con parrilla, vajilla, aire acondicionado y estacionamiento privado.</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-raised-button color="accent" routerLink="/disponibilidad">
+                <mat-icon>storefront</mat-icon> RESERVAR SALÓN
+              </button>
+            </mat-card-actions>
+          </mat-card>
+
+        </div>
+      </div>
+
+      <router-outlet></router-outlet>
+      
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

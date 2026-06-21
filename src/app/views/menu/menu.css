@@ -1,0 +1,168 @@
+/* ==========================================================================
+   1. ESTRUCTURA BASE DEL MENU Y NAVEGACION
+   ========================================================================== */
+.app-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden; /* Evita scrolls inesperados en el contenedor global */
+}
+
+.app-sidebar {
+  width: 240px; /* Reducido un poco para ganar espacio horizontal */
+  background-color: #f5f5f5;
+}
+
+.user-profile {
+  padding: 12px; /* Reducido de 20px a 12px */
+  text-align: center;
+  background-color: #e0e0e0;
+}
+
+.user-profile h3 {
+  margin: 0;
+  font-weight: 500;
+  font-size: 1.1rem; /* Un poco más pequeño */
+}
+
+.user-profile p {
+  margin: 2px 0 0 0; /* Menos margen */
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* Reducimos la altura por defecto de los items del menú de Angular Material */
+.app-sidebar mat-list-item {
+  height: 40px !important; 
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.main-content {
+  padding: 12px; /* Reducido de 20px a 12px para ganar espacio vertical */
+  box-sizing: border-box;
+  height: calc(100vh - 64px); /* Forzamos que el contenido use solo el alto disponible restando el toolbar */
+  display: flex;
+  flex-direction: column;
+}
+
+.logout-btn {
+  color: #f44336;
+}
+
+/* ==========================================================================
+   2. DISEÑO DE LA PANTALLA DE INICIO (HOME CONTAINER)
+   ========================================================================== */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Reducido de 30px a 12px */
+  height: 100%;
+  justify-content: space-between; /* Distribuye hero y cards eficientemente */
+}
+
+.hero-banner {
+  width: 100%;          
+  max-width: 1200px;      
+  margin: 0 auto;         
+  aspect-ratio: 16 / 3.5; /* Más alargado horizontalmente para que ocupe menos alto */
+  min-height: 100px;      /* Reducido de 150px a 100px */
+  background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQB94U7iSSXJZUplC_Ovht2GzmlfaEXCeSyFQ&s');
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.5); 
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 0 15px;
+}
+
+.hero-overlay h1 {
+  font-size: 1.5rem; /* Reducido de 2.2rem a 1.5rem */
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.hero-overlay p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.action-cards {
+  display: flex;
+  gap: 12px; /* Reducido de 20px a 12px */
+  flex-wrap: nowrap; /* Evitamos que se rompa en dos filas para obligar la vista horizontal */
+}
+
+.action-card {
+  flex: 1;
+  min-width: 0; /* Permite que Material se encoja correctamente en flex */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Ajustes internos de la tarjeta de Angular Material para ahorrar espacio */
+.action-card mat-card-header {
+  padding: 8px 12px !important;
+}
+
+.action-card mat-card-title {
+  font-size: 1.1rem !important;
+}
+
+.action-card mat-card-subtitle {
+  font-size: 0.8rem !important;
+}
+
+.action-card img {
+  height: 110px; /* Reducido drásticamente de 200px a 110px */
+  object-fit: cover; 
+}
+
+.action-card mat-card-content {
+  padding: 8px 12px !important;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.action-card mat-card-actions {
+  padding: 4px 8px !important;
+  margin: 0 !important;
+}
+
+/* Reducir tamaño de los botones dentro de las tarjetas */
+.action-card button {
+  font-size: 0.75rem !important;
+  padding: 0 8px !important;
+  line-height: 32px !important;
+  margin: 1rem;
+}
+
+/* agrupa el logo y el texto en una línea y los centra verticalmente */
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Espacio de separacion entre el logo y el texto */
+}
+
+/* controla el tamaño del logo para que encaje en la barra de herramientas */
+.toolbar-logo {
+  height: 40px;      /* altura ideal para un mat-toolbar estandar */
+  width: auto;        /* mantiene la proporcion de la imagen */
+  object-fit: contain;
+  border-radius: 4px; /* esquinas un poco redondeadas */
+}
