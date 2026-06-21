@@ -27,7 +27,12 @@ export class LayoutComponent {
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
     { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
-    { texto: 'Control Reservas', ruta: '/reservas-globales', icono: 'bi bi-clipboard-data'/*,soloAdmin: true*/},
+    {
+      texto: 'Control Reservas',
+      ruta: '/reservas-globales',
+      icono: 'bi bi-clipboard-data',
+      soloAdmin: true,
+    },
     {
       texto: 'Disponibilidad',
       ruta: '/disponibilidad',
