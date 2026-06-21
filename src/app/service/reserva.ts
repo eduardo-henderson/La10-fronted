@@ -30,6 +30,12 @@ export class ReservaService {
       .pipe(catchError((err) => this.handleError(err)));
   }
 
+  listarReservas(idUsuario: number): Observable<any> {
+    return this.http
+      .get<any>(`${this.apiUrl}/reservasporusuario/${idUsuario}`)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
   disponibilidad(): Observable<any> {
     return this.http
       .get<any>(`${this.apiUrl}/disponibilidad`)
