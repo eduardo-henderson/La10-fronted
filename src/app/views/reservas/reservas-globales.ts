@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ReservaService } from '../../service/reserva';
 import { EspacioService } from '../../service/espacio';
@@ -8,7 +9,7 @@ import { Espacio } from '../../models/espacio.model';
 @Component({
   selector: 'app-reservas-globales',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './reservas-globales.html',
   styleUrls: ['./reservas.css'] //usando tu reservas.css unificado
 })
@@ -60,29 +61,40 @@ export class ReservasGlobalesComponent implements OnInit {
     });
   }
 
-  cancelarReserva(item: any): void {
-    const motivo = window.prompt(
-      '¿Estás seguro de que deseas cancelar esta reserva?\nIngresa el motivo (opcional):'
-    );
+  //CANCELAR RESERVA
+  isModalOpen = false;
+  motivoCancelacion = '';
+  itemACancelar: any = null;
 
-    if (motivo === null) return; 
+  // 2. AGREGA ESTE NUEVO MÉTODO PARA ABRIR EL MODAL
+  abrirModalCancelacion(item: any): void {
+    this.itemACancelar = item;
+    this.motivoCancelacion = ''; 
+    this.isModalOpen = true;
+  }
+
+  // 3. REEMPLAZA TU FUNCIÓN CANCELAR RESERVA ACTUAL POR ESTA
+  cancelarReserva(): void {
+    if (!this.itemACancelar) return;
+
+    this.isModalOpen = false; 
+    this.cdr.detectChanges(); // Forzamos el cierre visual rápido
 
     this.isLoading = true;
-    this.errorMessage = '';   //limpiamos mensajes anteriores
-    this.successMessage = '';  //limpiamos mensajes anteriores
+    this.errorMessage = '';   
+    this.successMessage = '';  
     this.cdr.detectChanges();
 
     const reservaDto = {
-      ...item,
-      motivoCanc: motivo.trim() === '' ? 'Cancelado por el Administrador' : motivo
+      ...this.itemACancelar,
+      motivoCanc: this.motivoCancelacion.trim() === '' ? 'Cancelado por el Administrador' : this.motivoCancelacion
     };
 
     this.reservaService.cancelarReserva(reservaDto).subscribe({
       next: (resp: any) => {
         if (resp && (resp.status === 'OK' || resp.type === 'OK')) {
-          //en vez de alert(), guardar el mensaje en la variable
           this.successMessage = '¡Reserva cancelada con éxito!';
-          this.buscarReservas(); // O this.cargarReservas() segun el componente
+          this.buscarReservas(); // Ejecuta tu refresco original
         } else {
           this.errorMessage = resp?.message || 'No se pudo cancelar la reserva.';
           this.isLoading = false;
@@ -93,6 +105,9 @@ export class ReservasGlobalesComponent implements OnInit {
         this.isLoading = false;
         this.errorMessage = err.message || 'Error de red al intentar cancelar.';
         this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.itemACancelar = null;
       }
     });
   }

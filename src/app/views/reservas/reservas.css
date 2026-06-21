@@ -372,3 +372,106 @@
 }
 
 
+/*MODAL DE CANCELAR*/
+/* Capa de fondo oscura */
+.mi-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999; /* Asegura que se monte sobre todo */
+}
+
+/* Caja blanca del modal */
+.mi-modal-box {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-family: sans-serif;
+}
+
+/* Encabezado */
+.mi-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.mi-modal-header h3 {
+  margin: 0;
+  color: #dc3545;
+  font-size: 1.25rem;
+}
+
+.btn-cerrar-x {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+}
+
+/* Cuerpo e inputs */
+.mi-modal-body p {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.mi-modal-body label {
+  font-size: 0.85rem;
+  color: #666;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.mi-modal-body textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+  box-sizing: border-box;
+}
+
+/* Footer y Botones */
+.mi-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.btn-volver {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-confirmar {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-volver:hover { background-color: #e2e6ea; }
+.btn-confirmar:hover { background-color: #bd2130; }

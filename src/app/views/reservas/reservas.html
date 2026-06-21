@@ -53,7 +53,7 @@
               </p>
 
               <div class="reserva-actions" *ngIf="item.estadoDeReserva !== 'CANCELADO'">
-                <button class="btn-cancelar-reserva" (click)="cancelarReserva(item)">
+                <button class="btn-cancelar-reserva" (click)="abrirModalCancelacion(item)">
                   ❌ Cancelar Reserva
                 </button>
               </div>
@@ -68,6 +68,37 @@
 
     <div class="reservas-footer">
       <p class="info-text">Sistema de Reservas - La 10</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="mi-modal-overlay" *ngIf="isModalOpen">
+  <div class="mi-modal-box">
+    
+    <div class="mi-modal-header">
+      <h3>Confirmar Cancelación</h3>
+      <button type="button" class="btn-cerrar-x" (click)="isModalOpen = false">×</button>
+    </div>
+
+    <div class="mi-modal-body">
+      <p>¿Estás seguro de que deseas cancelar esta reserva?</p>
+      <label for="motivoInput">Ingresa el motivo de la cancelación (opcional):</label>
+      <textarea 
+        id="motivoInput"
+        [(ngModel)]="motivoCancelacion" 
+        placeholder="Ej: Inconveniente de último momento..."
+        rows="3">
+      </textarea>
+    </div>
+
+    <div class="mi-modal-footer">
+      <button type="button" class="btn-volver" (click)="isModalOpen = false">
+        Volver atrás
+      </button>
+      <button type="button" class="btn-confirmar" (click)="cancelarReserva()">
+        Confirmar Cancelación
+      </button>
     </div>
 
   </div>
