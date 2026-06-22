@@ -52,12 +52,6 @@ export class LayoutComponent {
       icono: 'bi bi-clipboard-data',
       soloAdmin: true,
     },
-    {
-      texto: 'Disponibilidad',
-      ruta: '/disponibilidad',
-      icono: 'bi bi-calendar2-range',
-      soloAdmin: true,
-    },
   ];
 
   get itemsVisibles(): ItemMenu[] {
