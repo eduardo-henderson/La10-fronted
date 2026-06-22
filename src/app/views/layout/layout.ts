@@ -40,9 +40,18 @@ export class LayoutComponent {
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
     { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
-    { texto: 'Registrar Espacio', ruta: '/registro-espacio', icono: 'bi bi-bookmark-star', soloAdmin: true },
-    { texto: 'Editar Espacio', ruta: '/registro-espacio', icono: 'bi bi-pencil-square', soloAdmin: true },
-    { texto: 'Editar Perfil', icono: 'bi bi-trash', soloAdmin: true },
+    {
+      texto: 'Registrar Espacio',
+      ruta: '/registro-espacio',
+      icono: 'bi bi-bookmark-star',
+      soloAdmin: true,
+    },
+    {
+      texto: 'Editar Espacio',
+      ruta: '/registro-espacio',
+      icono: 'bi bi-pencil-square',
+      soloAdmin: true,
+    },
     {
       texto: 'Disponibilidad',
       ruta: '/disponibilidad',
