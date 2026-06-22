@@ -20,10 +20,37 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   /**
-   * realiza login con cedula y contrasenia
-   * @param usuario cedula del usuario
-   * @param password contrasenia
-   * @returns observable con la respuesta del login (contiene el token)
+   * Extrae el ID del usuario decodificando el JWT almacenado en localStorage
+   * @returns El ID numérico del usuario o 0 si no es válido
+   */
+  getUsuarioId(): number {
+    const token = this.getToken();
+    if (!token) return 0;
+
+    try {
+      //un JWT se compone de: Header.Payload.Signature. Tomamos el Payload (posicion 1)
+      const base64Url = token.split('.')[1];
+      //ajustar posibles caracteres especiales de Base64URL a Base64
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      //decodificamos el string binario y lo transformamos en objeto JSON
+      const payload = JSON.parse(window.atob(base64));
+
+      console.log('JWT PAYLOAD DECODIFICADO:', payload); // DEBUG
+
+      // Buscamos la propiedad del ID. Dependiendo de cómo lo firme tu backend,
+      // suele venir como 'idUsuario', 'id', 'userId' o 'sub'.
+      return payload.idUsuario || payload.id || payload.userId || 0;
+    } catch (error) {
+      console.error('Error al decodificar el token JWT:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Realiza login con cédula y contraseña
+   * @param usuario Cédula del usuario
+   * @param password Contraseña
+   * @returns Observable con la respuesta del login (contiene el token)
    */
   login(usuario: string, password: string): Observable<any> {
     const params = new HttpParams().set('usuario', usuario).set('password', password);

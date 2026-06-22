@@ -47,9 +47,9 @@ export class LayoutComponent {
       soloAdmin: true,
     },
     {
-      texto: 'Editar Espacio',
-      ruta: '/registro-espacio',
-      icono: 'bi bi-pencil-square',
+      texto: 'Control Reservas',
+      ruta: '/reservas-globales',
+      icono: 'bi bi-clipboard-data',
       soloAdmin: true,
     },
     {

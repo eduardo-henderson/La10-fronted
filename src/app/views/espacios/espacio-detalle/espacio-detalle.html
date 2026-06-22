@@ -1,3 +1,148 @@
 <div class="detalle-pagina">
-  <p class="detalle-placeholder">Espacio #{{ idEspacio }}</p>
+  <a routerLink="/espacios" class="volver">← Volver a espacios</a>
+
+  <!-- Header dias -->>
+  <div class="cabecera">
+    <div class="titulo-fila">
+      <div>
+        <h1>{{ espacio?.nombre || 'Espacio' }}</h1>
+        <p class="sub" *ngIf="espacio">
+          {{ etiquetaTipo }} · Capacidad {{ espacio.capacidad }} · ${{ espacio.precioBase }}
+        </p>
+        <p class="sub">Semana del {{ rangoSemana }}</p>
+      </div>
+
+      <div class="nav-semana" *ngIf="logueado">
+        <button (click)="semanaAnterior()" [disabled]="!puedeRetroceder" title="Semana anterior">
+          ‹
+        </button>
+        <button class="btn-hoy" (click)="hoy()" [class.activo]="offsetSemana === 0">Hoy</button>
+        <button (click)="semanaSiguiente()" [disabled]="!puedeAvanzar" title="Semana siguiente">
+          ›
+        </button>
+      </div>
+    </div>
+
+    <div class="banner-invitado" *ngIf="!logueado">
+      Iniciá sesión para reservar y ver otras semanas. Estás viendo solo la semana actual.
+    </div>
+
+    <div class="banner-deshab" *ngIf="espacio && !espacio.habilitado">
+      Este espacio está deshabilitado. No se aceptan reservas.
+    </div>
+
+    <!-- Leyenda -->
+    <div class="leyenda">
+      <span><i class="punto libre"></i> Libre</span>
+      <span *ngIf="esCancha"><i class="punto media"></i> Media (falta rival)</span>
+      <span *ngIf="esSalon && tieneCanchaAsociada">
+        <i class="punto cancha-ocupada-leyenda"></i> Cancha asociada ocupada
+      </span>
+      <span><i class="punto completa"></i> Ocupado</span>
+    </div>
+
+    <div *ngIf="exito" class="alerta exito">{{ exito }}</div>
+    <div *ngIf="error && !seleccion" class="alerta error">{{ error }}</div>
+
+    <div *ngIf="cargandoEspacio || cargandoGrilla" class="estado">
+      <span class="spinner"></span>
+      <p>Cargando...</p>
+    </div>
+
+    <!-- Calendario -->
+    <div class="tabla-card" *ngIf="!cargandoEspacio && espacio">
+      <div class="tabla-scroll">
+        <table class="calendario">
+          <thead>
+            <tr>
+              <th class="col-hora">Hora</th>
+              <th *ngFor="let dia of dias" [class.es-hoy]="dia.esHoy">
+                <div class="dia-nombre">{{ dia.nombre }}</div>
+                <div class="dia-num">{{ dia.numero }}</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let hora of horas">
+              <td class="col-hora">{{ hora }}:00</td>
+              <td
+                *ngFor="let d of indicesDias"
+                [ngClass]="claseCelda(d, hora)"
+                [class.celda-sel]="esSeleccionada(d, hora)"
+                (click)="onCeldaClick(d, hora)"
+              >
+                <span *ngIf="esCancha && estadoCelda(d, hora) === TipoOcupacion.MEDIA" class="etq"
+                  >medio rival</span
+                >
+                <span *ngIf="estadoCelda(d, hora) === TipoOcupacion.COMPLETA" class="etq"
+                  >ocupado</span
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal reserva -->
+  <div class="modal-overlay" *ngIf="seleccion" (click)="cerrarPanel()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Reservar — {{ espacio?.nombre }}</h3>
+        <button class="cerrar" (click)="cerrarPanel()">×</button>
+      </div>
+      <p class="modal-sub">{{ seleccion.etiqueta }}</p>
+
+      <ng-container *ngIf="esCancha && !seleccionEsMedia">
+        <button class="btn-res" [disabled]="guardando" (click)="reservarCompleta()">
+          Reserva completa — ${{ precioCompleta }}
+        </button>
+        <button
+          class="btn-res alt"
+          *ngIf="permiteMedia"
+          [disabled]="guardando"
+          (click)="reservarMedia()"
+        >
+          Media reserva (buscar rival) — ${{ precioMedia }}
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="esCancha && seleccionEsMedia">
+        <p class="aviso">
+          Hay una media reserva esperando rival. Al unirte, el turno queda confirmado.
+        </p>
+        <button class="btn-res" [disabled]="guardando" (click)="reservarMedia()">
+          Unirme — media reserva — ${{ precioMedia }}
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="esSalon">
+        <p class="aviso">Reserva de 1 hora ({{ seleccion.hora }}:00 a {{ salonFinHora }}).</p>
+
+        <label class="check" *ngIf="tieneCanchaAsociada">
+          <input
+            type="checkbox"
+            [(ngModel)]="incluyeCancha"
+            [disabled]="guardando || canchaAsociadaOcupada"
+          />
+          Incluir cancha asociada{{ canchaAsociadaNombre ? ': ' + canchaAsociadaNombre : '' }}
+        </label>
+
+        <p
+          class="aviso"
+          *ngIf="tieneCanchaAsociada && canchaAsociadaOcupada"
+          style="color: var(--color-error)"
+        >
+          La cancha asociada ya está reservada en ese horario.
+        </p>
+
+        <button class="btn-res" [disabled]="guardando" (click)="reservarSalon()">
+          Reservar — ${{ precioSalon }}
+        </button>
+      </ng-container>
+
+      <p class="modal-err" *ngIf="error">{{ error }}</p>
+    </div>
+  </div>
 </div>

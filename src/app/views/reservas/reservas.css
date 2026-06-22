@@ -1,158 +1,374 @@
-.container-reservas {
-  padding: 1.5rem;
-}
-
-.header-reservas {
+/* ==========================================================================
+   1. CONTENEDORES PRINCIPALES (Estilo Login de tu aplicación)
+   ========================================================================== */
+.reservas-page-container,
+.global-page-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-principal) 0%, #e9e8eb 100%);
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.header-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.btn-back {
-  background-color: #c0392b;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-back:hover {
-  background-color: #a93226;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(192, 57, 43, 0.3);
-}
-
-.content-reservas {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.form-section,
-.list-section {
-  background: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-group {
+.reservas-box,
+.global-box {
+  background: var(--color-superficie);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-lg);
+  width: 100%;
+  max-width: 680px; /* Ancho optimizado para la grilla de tarjetas */
+  max-height: 88vh; /* Controla que el contenedor no se salga de la pantalla */
+  padding: 30px;
   display: flex;
   flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+  box-sizing: border-box;
 }
 
-.form-group.checkbox {
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.form-label,
-.form-group label {
+/* ==========================================================================
+   2. CABECERAS Y TEXTOS
+   ========================================================================== */
+.header-reservas,
+.header-global {
+  margin-bottom: 20px;
+  flex-shrink: 0; 
+}
+
+.header-reservas h1,
+.header-global h1 {
+  color: #f36464;
+  font-size: 28px;
+  margin: 5px 0 0 0;
   font-weight: 600;
-  margin-bottom: 0.4rem;
 }
 
-.form-control,
-.form-select {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.35rem;
+.subtitle {
+  margin: 2px 0 0 0;
+  font-size: 14px;
+  color: var(--color-texto-secundario);
 }
 
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.btn {
-  cursor: pointer;
+.btn-back-top {
+  background: none;
   border: none;
-  border-radius: 0.35rem;
-  padding: 0.7rem 1rem;
+  color: var(--color-principal);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 0 0.5rem 0;
+  transition: color 0.3s ease;
+  display: block;
 }
 
-.btn-primary {
-  background-color: #2f74ff;
-  color: #ffffff;
+.btn-back-top:hover {
+  color: var(--color-principal-oscuro);
+  text-decoration: underline;
 }
 
-.btn-secondary {
-  background-color: #f0f0f0;
-  color: #333333;
+/* ==========================================================================
+   3. BARRA DE FILTROS (Específica para la vista de Admin)
+   ========================================================================== */
+.filter-section {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  background: var(--color-superficie-diferente);
+  padding: 12px;
+  border-radius: var(--radio-md);
+  border: 1px solid var(--color-borde);
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
-.alert {
-  padding: 0.8rem 1rem;
-  border-radius: 0.35rem;
-  margin-bottom: 1rem;
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
-.alert-error {
-  background: #ffe6e6;
-  color: #a00;
-  border: 1px solid #f5c2c2;
+.filter-group label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--color-texto-secundario);
 }
 
-.alert-success {
-  background: #e6ffea;
-  color: #116611;
-  border: 1px solid #b5e7bf;
+.form-control {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: var(--radio-sm);
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.btn-search {
+  background: linear-gradient(135deg, var(--color-principal) 0%, #312929 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 0 18px;
+  border-radius: var(--radio-sm);
+  cursor: pointer;
+  font-size: 13px;
+  height: 35px;
+  transition: transform 0.2s;
+}
+
+.btn-search:hover {
+  transform: scale(1.02);
+}
+
+/* ==========================================================================
+   4. ZONA CON SCROLL VERTICAL CONGELADO (La magia del scroll interno)
+   ========================================================================== */
+.content-reservas,
+.content-global {
+  flex-grow: 1; 
+  overflow-y: auto; 
+  padding-right: 8px; 
+  margin-bottom: 15px;
+}
+
+/* Personalización de la barra de scroll */
+.content-reservas::-webkit-scrollbar,
+.content-global::-webkit-scrollbar {
+  width: 6px;
+}
+.content-reservas::-webkit-scrollbar-track,
+.content-global::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.content-reservas::-webkit-scrollbar-thumb,
+.content-global::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+.content-reservas::-webkit-scrollbar-thumb:hover,
+.content-global::-webkit-scrollbar-thumb:hover {
+  background: var(--color-principal-claro);
+}
+
+.list-section {
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .reservas-grid,
-.spaces-grid,
-.disponibilidad-grid {
+.global-grid {
   display: grid;
-  gap: 0.75rem;
+  gap: 15px;
 }
 
+/* ==========================================================================
+   5. TARJETAS (CARDS) DE RESERVA / BLOCAS
+   ========================================================================== */
 .reserva-card,
-.disponibilidad-card {
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
+.reserva-card-global {
+  background: var(--color-superficie-diferente);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  padding: 18px;
+  transition: all 0.3s ease;
 }
 
-.disponibilidad-card {
-  background: #f9faff;
+.reserva-card:hover,
+.reserva-card-global:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-md);
+  border-color: var(--color-principal-claro);
 }
 
 .reserva-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--color-borde);
+  padding-bottom: 8px;
+}
+
+.reserva-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--color-texto);
+}
+
+.reserva-time,
+.fecha-destacada {
+  font-size: 13px;
+  color: var(--color-texto-secundario);
+}
+
+.fecha-destacada {
+  margin: 5px 0 0 0;
+  font-weight: 600;
+  color: var(--color-principal-oscuro);
+}
+
+.fecha-destacada span {
+  font-weight: normal;
+  color: var(--color-texto-secundario);
+  margin-left: 4px;
+}
+
+.reserva-info p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: var(--color-texto);
+}
+
+.reserva-price {
+  font-weight: 600;
+  color: var(--color-principal);
+}
+
+/* ==========================================================================
+   6. ESTADOS Y TAGS (CONFIRMADA, PENDIENTE, MEDIA, COMPLETA)
+   ========================================================================== */
+.estado-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radio-full);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.estado-tag[data-estado="CONFIRMADA"],
+.estado-tag[data-estado="Aprobada"] {
+  background-color: var(--color-exito-fondo);
+  color: var(--color-exito-texto);
+}
+
+.estado-tag[data-estado="PENDIENTE"] {
+  background-color: var(--color-advertencia-fondo);
+  color: var(--color-advertencia-texto);
+}
+
+/* Ocupaciones reales del Admin list */
+.estado-tag[data-estado="COMPLETA"] {
+  background-color: var(--color-error-fondo);
+  color: var(--color-error-texto);
+}
+
+.estado-tag[data-estado="MEDIA"] {
+  background-color: var(--color-advertencia-fondo);
+  color: var(--color-advertencia-texto);
+}
+
+.tag-rival {
+  margin: 8px 0 0 0;
+  color: var(--color-advertencia);
+  font-size: 13px;
+}
+
+/* ALERTAS GENERALES */
+.alert {
+  padding: 12px 15px;
+  border-radius: var(--radio-sm);
+  margin-bottom: 20px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.alert-error {
+  background-color: var(--color-error-fondo);
+  color: var(--color-error-texto);
+  border-left: 4px solid var(--color-error);
+}
+.alert-success {
+  background-color: var(--color-exito-fondo);
+  color: var(--color-exito-texto);
+  border-left: 4px solid var(--color-exito);
+}
+
+/* ==========================================================================
+   7. FOOTERS Y AUXILIARES
+   ========================================================================== */
+.reservas-footer,
+.global-footer {
+  text-align: center;
+  padding-top: 15px;
+  border-top: 1px solid var(--color-borde);
+  flex-shrink: 0;
+}
+
+.info-text {
+  color: var(--color-texto-suave);
+  font-size: 13px;
+  margin: 0;
 }
 
 .loading-spinner,
 .empty-state {
-  color: #555;
+  text-align: center;
+  padding: 30px;
+  color: var(--color-texto-secundario);
 }
 
-@media (max-width: 900px) {
-  .content-reservas {
-    grid-template-columns: 1fr;
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .reservas-box,
+  .global-box {
+    padding: 20px 15px;
+    max-height: 95vh;
+  }
+
+  .reserva-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-search {
+    height: 38px;
+    width: 100%;
   }
 }
+/*boton cancelar*/
+.reserva-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancelar-reserva {
+  background-color: transparent;
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  padding: 6px 12px;
+  border-radius: var(--radio-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancelar-reserva:hover {
+  background-color: var(--color-error-fondo);
+  transform: translateY(-1px);
+}
+
+/*color si el estado pasa a CANCELADO */
+.estado-tag[data-estado="CANCELADO"] {
+  background-color: var(--color-error-fondo);
+  color: var(--color-error-texto);
+}
+
+

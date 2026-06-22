@@ -1,6 +1,6 @@
 export enum TipoEspacio {
   CANCHA = 'CANCHA',
-  SALON = 'SALON'
+  SALON = 'SALON',
 }
 
 export interface Espacio {
@@ -12,4 +12,5 @@ export interface Espacio {
   permiteMediaReserva: boolean;
   tipo: TipoEspacio;
   canchaAsociada?: Espacio | null;
+  idCanchaAsociada?: number | null;
 }
