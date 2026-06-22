@@ -1,1 +1,23 @@
 @import '../auth/login/login.css';
+
+/* cree las reglas de la cuadricula para organizar los campos en dos columnas */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* distribuyo en dos columnas iguales */
+  gap: 15px; /* asigno espacio de separacion entre cada celda */
+}
+
+/* agregue esta regla para forzar a que ciertos elementos ocupen todo el ancho horizontal */
+.form-grid .full-width {
+  grid-column: span 2;
+}
+
+/* agregue un media query para que en pantallas de celulares todo vuelva a una columna */
+@media (max-width: 576px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid .full-width {
+    grid-column: span 1;
+  }
+}

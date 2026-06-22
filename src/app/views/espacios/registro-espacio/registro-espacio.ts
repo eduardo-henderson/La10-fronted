@@ -1,164 +1,45 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { finalize } from 'rxjs';
 import { Espacio, TipoEspacio } from '../../../models/espacio.model';
-import { EspacioService } from '../../../service/espacio';
 import { AuthService } from '../../../service/auth.service';
-import { ChangeDetectorRef } from '@angular/core';
+import { EspacioService } from '../../../service/espacio';
 
 @Component({
   selector: 'app-registro-espacio',
-  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './registro-espacio.html',
-  styleUrls: ['./registro-espacio.css']
+  styleUrls: ['./registro-espacio.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegistroEspacioComponent implements OnInit {
+  private readonly espacioService = inject(EspacioService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+  private readonly cd = inject(ChangeDetectorRef);
 
   espacio: Espacio = this.createDefaultEspacio();
-
   listaEspacios: Espacio[] = [];
-  isLoadingEspacios: boolean = false;
-  isSaving: boolean = false;
-  errorMessage: string = '';
-  successMessage: string = '';
+  isLoadingEspacios = false;
+  isSaving = false;
+  errorMessage = '';
+  successMessage = '';
+  editMode = false;
 
-  constructor(
-    private espacioService: EspacioService,
-    private authService: AuthService,
-    private router: Router,
-    private cd: ChangeDetectorRef
-  ) {}
-
-  irADisponibilidad() {
-    this.router.navigate(['/disponibilidad']);
-  }
-
-  reservarEspacio(espacio: Espacio): void {
-    const id = (espacio as any).idEspacio ?? (espacio as any).id ?? 0;
-    if (!id) {
-      this.errorMessage = 'No se puede reservar este espacio: ID desconocido.';
-      return;
-    }
-
-    // Navegar a la vista de reservas pasando el idEspacio como query param
-    this.router.navigate(['/reservas'], { queryParams: { idEspacio: id } });
-  }
+  mostrarModalConfirmacion = false;
+  tituloConfirmacion = '';
+  mensajeConfirmacion = '';
+  tipoAccion: 'inhabilitar' | 'habilitar' = 'inhabilitar';
+  espacioActual: Espacio | null = null;
 
   ngOnInit(): void {
-    // Verificar que el usuario esté autenticado
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    this.cargarEspaciosExistentes();
+    this.cargarEspacios();
   }
 
-  cargarEspaciosExistentes(): void {
-    this.isLoadingEspacios = true;
-    this.errorMessage = '';
-
-    this.espacioService.getEspacios()
-      .pipe(finalize(() => {
-        this.isLoadingEspacios = false;
-      }))
-      .subscribe({
-       next: (data) => {
-          this.listaEspacios = data;
-          //resolver relaciones (CLAVE)
-          this.listaEspacios.forEach(e => {
-            const id = (e as any).idCanchaAsociada;
-            if (id) {
-              e.canchaAsociada = this.listaEspacios.find(
-                x => x.idEspacio === id
-              ) || null;
-            }
-          });
-          console.log('LISTA CON RELACIONES:', this.listaEspacios);
-          this.cd.detectChanges();
-        },
-        error: (err) => {
-          // Manejar error de autenticación
-          if (err.status === 401) {
-            this.errorMessage = 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.';
-            setTimeout(() => {
-              this.authService.logout();
-              this.router.navigate(['/login']);
-            }, 2000);
-          } else {
-            this.errorMessage = 'Error al recuperar espacios: ' + err.message;
-          }
-          console.error('Error al recuperar espacios:', err);
-        }
-      });
-  }
-
-  guardar(form: NgForm): void {
-    // Validaciones básicas
-    if (!this.espacio.nombre.trim()) {
-      this.errorMessage = 'El nombre del espacio es requerido';
-      return;
-    }
-
-    if (this.espacio.capacidad <= 0) {
-      this.errorMessage = 'La capacidad debe ser mayor a 0';
-      return;
-    }
-
-    if (this.espacio.precioBase < 0) {
-      this.errorMessage = 'El precio base no puede ser negativo';
-      return;
-    }
-
-    this.isSaving = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    const espacio = { ...this.espacio };
-
-    // Si no hay cancha asociada, no enviar null
-    if (espacio.canchaAsociada === null || espacio.canchaAsociada === undefined) {
-      delete (espacio as any).canchaAsociada;
-    }
-
-    this.espacioService.registrarEspacio(espacio)
-      .pipe(finalize(() => {
-        this.isSaving = false;
-      }))
-      .subscribe({
-        next: (response) => {
-          this.isSaving = false;
-          this.successMessage = 'Espacio guardado exitosamente';
-          // recargar lista PRIMERO
-          this.cargarEspaciosExistentes();
-          // resetear formulario después
-          this.limpiarFormulario();
-          form.resetForm(this.espacio);
-
-          setTimeout(() => {
-            this.successMessage = '';
-          }, 1500);
-        },
-        error: (err) => {
-          this.isSaving = false;
-          // Manejar error de autenticación
-          if (err.message.includes('401') || err.message.includes('No autenticado')) {
-            this.errorMessage = 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.';
-            setTimeout(() => {
-              this.authService.logout();
-              this.router.navigate(['/login']);
-            }, 2000);
-          } else {
-            this.errorMessage = 'Error al guardar el espacio: ' + err.message;
-          }
-          console.error('Error al guardar el espacio:', err);
-        }
-      });
-  }
-
-  private createDefaultEspacio(): Espacio {
+  createDefaultEspacio(): Espacio {
     return {
       nombre: '',
       capacidad: 1,
@@ -166,24 +47,174 @@ export class RegistroEspacioComponent implements OnInit {
       precioBase: 0,
       permiteMediaReserva: false,
       tipo: TipoEspacio.CANCHA,
-      canchaAsociada: null
+      canchaAsociada: null,
     };
-  }
-
-  limpiarFormulario(): void {
-    this.espacio = this.createDefaultEspacio();
-  }
-
-  /**
-   * Cierra sesión y redirige al login
-   */
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   goHome(): void {
     this.router.navigate(['/home']);
   }
-}
 
+  irADisponibilidad(): void {
+    this.router.navigate(['/disponibilidad']);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  volver(): void {
+    this.location.back();
+  }
+
+  cargarEspacios(): void {
+    this.isLoadingEspacios = true;
+    this.errorMessage = '';
+
+    this.espacioService
+      .getEspacios()
+      .pipe(
+        finalize(() => {
+          this.isLoadingEspacios = false;
+          this.cd.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (espacios) => {
+          this.listaEspacios = [...espacios].sort((a, b) => (b.idEspacio ?? 0) - (a.idEspacio ?? 0));
+        },
+        error: () => {
+          this.errorMessage = 'Error al cargar espacios';
+        },
+      });
+  }
+
+  guardar(form: NgForm): void {
+    if (form.invalid || this.isSaving) {
+      return;
+    }
+
+    this.isSaving = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const request$ = this.editMode && this.espacio.idEspacio
+      ? this.espacioService.actualizarEspacio(this.espacio)
+      : this.espacioService.registrarEspacio(this.espacio);
+
+    request$
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+          this.cd.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage = this.editMode
+            ? 'Espacio actualizado correctamente'
+            : 'Espacio registrado correctamente';
+          this.editMode = false;
+          this.espacio = this.createDefaultEspacio();
+          form.resetForm(this.espacio);
+          this.cargarEspacios();
+        },
+        error: () => {
+          this.errorMessage = this.editMode
+            ? 'Error al actualizar espacio'
+            : 'Error al registrar espacio';
+        },
+      });
+  }
+
+  editarEspacio(espacio: Espacio): void {
+    this.editMode = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.espacio = {
+      ...espacio,
+      canchaAsociada: espacio.canchaAsociada ?? null,
+    };
+    this.cd.markForCheck();
+  }
+
+  cancelarEdicion(): void {
+    this.editMode = false;
+    this.espacio = this.createDefaultEspacio();
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.cd.markForCheck();
+  }
+
+  trackByEspacioId(index: number, espacio: Espacio): number {
+    return espacio.idEspacio ?? index;
+  }
+
+  inhabilitarEspacio(espacio: Espacio): void {
+    this.mostrarConfirmacion(espacio, 'inhabilitar');
+  }
+
+  habilitarEspacio(espacio: Espacio): void {
+    this.mostrarConfirmacion(espacio, 'habilitar');
+  }
+
+  mostrarConfirmacion(espacio: Espacio, accion: 'habilitar' | 'inhabilitar'): void {
+    this.espacioActual = espacio;
+    this.tipoAccion = accion;
+    this.tituloConfirmacion = accion === 'habilitar' ? 'Habilitar espacio' : 'Inhabilitar espacio';
+    this.mensajeConfirmacion = accion === 'habilitar'
+      ? '¿Desea habilitar este espacio?'
+      : '¿Desea inhabilitar este espacio?';
+    this.mostrarModalConfirmacion = true;
+    this.cd.markForCheck();
+  }
+
+  cancelarAccion(): void {
+    this.mostrarModalConfirmacion = false;
+    this.espacioActual = null;
+    this.cd.markForCheck();
+  }
+
+  confirmarAccion(): void {
+    if (!this.espacioActual || this.isSaving) {
+      return;
+    }
+
+    const espacio = this.espacioActual;
+    const habilitado = this.tipoAccion === 'habilitar';
+
+    this.isSaving = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const request$ = habilitado
+      ? this.espacioService.actualizarEspacio({ ...espacio, habilitado: true })
+      : this.espacioService.inhabilitarEspacio(espacio);
+
+    request$
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+          this.cd.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage = habilitado
+            ? 'Espacio habilitado correctamente'
+            : 'Espacio inhabilitado correctamente';
+          this.mostrarModalConfirmacion = false;
+          this.espacioActual = null;
+          this.cargarEspacios();
+        },
+        error: () => {
+          this.errorMessage = habilitado
+            ? 'Error al habilitar espacio'
+            : 'Error al inhabilitar espacio';
+          this.mostrarModalConfirmacion = false;
+          this.espacioActual = null;
+        },
+      });
+  }
+}

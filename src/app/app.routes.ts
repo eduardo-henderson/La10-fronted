@@ -11,12 +11,12 @@ import { EspaciosComponent } from './views/espacios/espacios';
 import { EspacioDetalleComponent } from './views/espacios/espacio-detalle/espacio-detalle';
 
 export const routes: Routes = [
-  // Sin layout
+  // sin layout
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
   { path: 'admin', component: AdminComponent },
 
-  // Con layout
+  // con layout
   {
     path: '',
     component: LayoutComponent,
@@ -24,11 +24,13 @@ export const routes: Routes = [
       { path: '', component: EspaciosComponent, pathMatch: 'full' },
       { path: 'home', component: EspaciosComponent },
       { path: 'registro-espacio', component: RegistroEspacioComponent },
-      // { path: 'espacios', component: RegistroEspacioComponent },
+      // { path: 'espacios', component: registroespaciocomponent },
       { path: 'reservas', component: ReservasComponent },
       { path: 'disponibilidad', component: Disponibilidad },
-      { path: 'espacios', component: EspaciosComponent }, // grilla (era RegistroEspacioComponent)
+      { path: 'espacios', component: EspaciosComponent }, // grilla (era registroespaciocomponent)
       { path: 'espacios/:id', component: EspacioDetalleComponent },
+      // agregue la ruta perfil aqui dentro para que se renderice con el menu y la barra superior
+      { path: 'perfil', component: RegistroComponent },
     ],
   },
 ];

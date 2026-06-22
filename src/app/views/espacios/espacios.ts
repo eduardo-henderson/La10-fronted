@@ -30,7 +30,10 @@ export class EspaciosComponent implements OnInit {
 
     this.espacioService.getEspacios().subscribe({
       next: (datos) => {
-        this.espacios = datos.filter((e) => e.habilitado);
+        // filtrar sólo habilitados y ordenar por id descendente (últimos agregados primero)
+        this.espacios = datos
+          .filter((e) => e.habilitado)
+          .sort((a, b) => (b.idEspacio || 0) - (a.idEspacio || 0));
         this.cargando = false;
         this.cdr.detectChanges();
       },
