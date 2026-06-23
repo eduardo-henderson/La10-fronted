@@ -39,8 +39,9 @@
     <!-- menu al costado -->
     <aside class="sidemenu">
       <nav class="sidemenu-lista">
+        <!-- Items generales -->
         <a
-          *ngFor="let item of itemsVisibles"
+          *ngFor="let item of itemsGenerales"
           class="sidemenu-item"
           [routerLink]="item.ruta"
           routerLinkActive="active"
@@ -49,6 +50,21 @@
           <i [ngClass]="item.icono"></i>
           <span class="sidemenu-texto">{{ item.texto }}</span>
         </a>
+
+        <!-- Seccion admin -->
+        <div class="sidemenu-admin" *ngIf="itemsAdmin.length > 0">
+          <p class="sidemenu-seccion">Admin</p>
+          <a
+            *ngFor="let item of itemsAdmin"
+            class="sidemenu-item sidemenu-item-admin"
+            [routerLink]="item.ruta"
+            routerLinkActive="active"
+          >
+            <span class="sidemenu-barra"></span>
+            <i [ngClass]="item.icono"></i>
+            <span class="sidemenu-texto">{{ item.texto }}</span>
+          </a>
+        </div>
       </nav>
     </aside>
 

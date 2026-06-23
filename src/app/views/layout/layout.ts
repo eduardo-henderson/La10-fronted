@@ -26,13 +26,10 @@ export class LayoutComponent {
   menuPerfilAbierto = false;
 
   constructor() {
-    // suscribirse a cambios de autenticación para forzar re-render cuando cambie token/rol
     this.auth.isAuthenticated$.subscribe(() => {
       try {
         this.cdr.detectChanges();
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) {}
     });
   }
 
@@ -60,12 +57,16 @@ export class LayoutComponent {
     },
   ];
 
-  get itemsVisibles(): ItemMenu[] {
+  get itemsGenerales(): ItemMenu[] {
     const logueado = this.auth.isAuthenticated();
-    const admin = this.auth.isAdmin();
-    return this.itemsMenu.filter(
-      (item) => (!item.soloLogueado || logueado) && (!item.soloAdmin || admin),
-    );
+    return this.itemsMenu.filter((item) => !item.soloAdmin && (!item.soloLogueado || logueado));
+  }
+
+  get itemsAdmin(): ItemMenu[] {
+    if (!this.auth.isAdmin()) {
+      return [];
+    }
+    return this.itemsMenu.filter((item) => item.soloAdmin);
   }
 
   get estaLogueado(): boolean {
