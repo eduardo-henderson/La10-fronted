@@ -45,6 +45,8 @@ export class EspacioService {
           //importante: dejamos el ID guardado
           canchaAsociada: null,
           idCanchaAsociada: item.idCanchaAsociada,
+
+          imagenUrl: item.imagenUrl,
         }));
       }),
       catchError((err) => this.handleError(err)),

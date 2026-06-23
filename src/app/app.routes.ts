@@ -7,15 +7,14 @@ import { ReservasComponent } from './views/reservas/reservas';
 import { ReservasGlobalesComponent } from './views/reservas/reservas-globales';
 import { Disponibilidad } from './views/disponibilidad/disponibilidad';
 import { RegistroComponent } from './views/registroUsuario/registro';
-import { AdminComponent } from './views/admin/admin';
 import { EspaciosComponent } from './views/espacios/espacios';
 import { EspacioDetalleComponent } from './views/espacios/espacio-detalle/espacio-detalle';
+import { UsuariosAdminComponent } from './views/admin/usuarios-admin';
 
 export const routes: Routes = [
   // sin layout
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
-  { path: 'admin', component: AdminComponent },
 
   // con layout
   {
@@ -23,7 +22,6 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       { path: '', component: EspaciosComponent, pathMatch: 'full' },
-      { path: 'home', component: EspaciosComponent },
       { path: 'registro-espacio', component: RegistroEspacioComponent },
       // { path: 'espacios', component: registroespaciocomponent },
       { path: 'reservas', component: ReservasComponent },
@@ -32,6 +30,7 @@ export const routes: Routes = [
       { path: 'espacios', component: EspaciosComponent }, // grilla (era registroespaciocomponent)
       { path: 'espacios/:id', component: EspacioDetalleComponent },
       // agregue la ruta perfil aqui dentro para que se renderice con el menu y la barra superior
+      { path: 'usuarios', component: UsuariosAdminComponent },
       { path: 'perfil', component: RegistroComponent },
     ],
   },

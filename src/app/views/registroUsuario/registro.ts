@@ -9,27 +9,30 @@ import { AuthService } from '../../service/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './registro.html',
-  styleUrls: ['./registro.css']
+  styleUrls: ['./registro.css'],
 })
 export class RegistroComponent implements OnInit {
   // mantengo el objeto con todos los campos correspondientes a tu entidad
   usuario = {
     idUsuario: null,
-    nombre: '',            
-    apellido: '',          
-    email: '',             
-    telefono: '',          
-    fechaNacimiento: '',    
-    contrasenia: '',       
-    cedula: '',            
-    tipousuario: 'CLIENTE', 
-    estadoUsuario: 'ACTIVO' 
+    nombre: '',
+    apellido: '',
+    email: '',
+    telefono: '',
+    fechaNacimiento: '',
+    contrasenia: '',
+    cedula: '',
+    tipousuario: 'CLIENTE',
+    estadoUsuario: 'ACTIVO',
   };
 
   // mantengo la bandera para gestionar el comportamiento de la pantalla
   esEdicion: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     // invoco la lectura del almacenamiento local al inicializar
@@ -46,21 +49,21 @@ export class RegistroComponent implements OnInit {
   }
 
   goHome(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/']);
   }
 
   onRegister() {
-    console.log('Datos del usuario a registrar:', this.usuario); 
+    console.log('Datos del usuario a registrar:', this.usuario);
     // asigne el tipo unknown a los parametros para eliminar el error de any implicito
     this.authService.registro(this.usuario).subscribe({
       next: (response: unknown) => {
         alert('¡Usuario registrado con éxito!');
-        this.router.navigate(['/login']); 
+        this.router.navigate(['/login']);
       },
       error: (error: unknown) => {
         console.error(error);
         alert('Hubo un error en el registro');
-      }
+      },
     });
   }
 
@@ -75,7 +78,7 @@ export class RegistroComponent implements OnInit {
       error: (error: unknown) => {
         console.error(error);
         alert('error al intentar actualizar los datos');
-      }
+      },
     });
   }
 }

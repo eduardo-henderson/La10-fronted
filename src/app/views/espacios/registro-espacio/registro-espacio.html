@@ -1,204 +1,273 @@
-<div class="container-espacios">
-  <!-- Header con logout -->
-  <div class="header-espacios">
-    <button (click)="goHome()" class="btn btn-back" title="Volver a inicio">
-      ← Atrás
-    </button>
-    <h1>Registro de Espacios</h1>
-    <!-- <button (click)="irADisponibilidad()" class="btn btn-info">
-     <Ver Disponibilidad 
-    </button>-->
-    <button (click)="logout()" class="btn btn-logout">Cerrar Sesión</button>
-  </div>
-
-  <!-- Mensajes de error y éxito -->
-  <div *ngIf="errorMessage" class="alert alert-error">
-    <strong>⚠️ Error:</strong> {{ errorMessage }}
-  </div>
-
-  <div *ngIf="successMessage" class="alert" [ngClass]="tipoAccion === 'inhabilitar' ? 'alert-error' : 'alert-success'">
-    <strong>{{ tipoAccion === 'inhabilitar' ? '✓ Inhabilitado:' : '✓ Éxito:' }}</strong> {{ successMessage }}
-  </div>
-
-  <!-- Modal de confirmación -->
-  <div *ngIf="mostrarModalConfirmacion" class="modal-overlay">
-    <div class="modal-content">
-      <h2 class="modal-title">{{ tituloConfirmacion }}</h2>
-      <p class="modal-message">{{ mensajeConfirmacion }}</p>
-      <div class="modal-actions">
-        <button class="btn btn-cancel" (click)="cancelarAccion()" [disabled]="isSaving">
-          Cancelar
-        </button>
-        <button class="btn" [ngClass]="tipoAccion === 'inhabilitar' ? 'btn-danger' : 'btn-success'" (click)="confirmarAccion()" [disabled]="isSaving">
-          {{ isSaving ? 'Procesando...' : (tipoAccion === 'inhabilitar' ? 'Inhabilitar' : 'Habilitar') }}
-        </button>
-      </div>
+<div class="registro-pagina">
+  <!-- Cabecera -->
+  <header class="registro-cabecera">
+    <div class="cabecera-info">
+      <h1>{{ editMode ? 'Editar espacio' : 'Registro de espacios' }}</h1>
+      <p class="cabecera-sub">Creá, editá y administrá las canchas y salones del complejo.</p>
     </div>
+  </header>
+
+  <!-- Alertas -->
+  <div *ngIf="errorMessage" class="alerta error">{{ errorMessage }}</div>
+
+  <div
+    *ngIf="successMessage"
+    class="alerta"
+    [ngClass]="tipoAccion === 'inhabilitar' ? 'error' : 'exito'"
+  >
+    {{ successMessage }}
   </div>
 
-  <div class="content-espacios">
-    <!-- Formulario de registro -->
-    <div class="form-section">
-      <h2>{{ editMode ? 'Editar Espacio' : 'Nuevo Espacio' }}</h2>
-      <form (ngSubmit)="guardar(espacioForm)" #espacioForm="ngForm">
+  <div class="registro-cuerpo">
+    <!-- Formulario -->
+    <section class="panel-card">
+      <div class="panel-head">
+        <h2>{{ editMode ? 'Editar espacio' : 'Nuevo espacio' }}</h2>
+        <p class="panel-sub">Completá los datos del espacio.</p>
+      </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Nombre del Espacio *</label>
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="espacio.nombre"
-              name="nombre"
-              placeholder="Ej: Cancha A"
-              [disabled]="isSaving"
-              required
-            >
+      <div class="panel-body">
+        <form (ngSubmit)="guardar(espacioForm)" #espacioForm="ngForm">
+          <div class="form-fila">
+            <div class="campo">
+              <label class="campo-label">Nombre del espacio *</label>
+              <input
+                type="text"
+                class="campo-input"
+                [(ngModel)]="espacio.nombre"
+                name="nombre"
+                placeholder="Ej: Cancha A"
+                [disabled]="isSaving"
+                required
+              />
+            </div>
+
+            <div class="campo">
+              <label class="campo-label">Capacidad máxima *</label>
+              <input
+                type="number"
+                class="campo-input"
+                [(ngModel)]="espacio.capacidad"
+                name="capacidad"
+                min="1"
+                [disabled]="isSaving"
+                required
+              />
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Capacidad máxima *</label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="espacio.capacidad"
-              name="capacidad"
-              min="1"
-              [disabled]="isSaving"
-              required
-            >
-          </div>
-        </div>
+          <div class="form-fila">
+            <div class="campo">
+              <label class="campo-label">Precio base ($) *</label>
+              <input
+                type="number"
+                class="campo-input"
+                [(ngModel)]="espacio.precioBase"
+                name="precioBase"
+                min="0"
+                step="0.01"
+                [disabled]="isSaving"
+                required
+              />
+            </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Precio Base ($) *</label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="espacio.precioBase"
-              name="precioBase"
-              min="0"
-              step="0.01"
-              [disabled]="isSaving"
-              required
-            >
+            <div class="campo">
+              <label class="campo-label">Tipo de espacio *</label>
+              <select
+                class="campo-select"
+                [(ngModel)]="espacio.tipo"
+                name="tipo"
+                (ngModelChange)="onTipoChange()"
+                [disabled]="isSaving"
+                required
+              >
+                <option value="CANCHA">Cancha</option>
+                <option value="SALON">Salón</option>
+              </select>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Tipo de Espacio *</label>
+          <div class="form-fila">
+            <label class="campo-check">
+              <input
+                type="checkbox"
+                id="habilitado"
+                [(ngModel)]="espacio.habilitado"
+                name="habilitado"
+                [disabled]="isSaving"
+              />
+              Espacio habilitado
+            </label>
+
+            <label class="campo-check" *ngIf="esCancha">
+              <input
+                type="checkbox"
+                id="permiteMediaReserva"
+                [(ngModel)]="espacio.permiteMediaReserva"
+                name="permiteMediaReserva"
+                [disabled]="isSaving"
+              />
+              Permite media reserva
+            </label>
+          </div>
+
+          <div class="campo" *ngIf="esSalon">
+            <label class="campo-label">Cancha asociada (opcional)</label>
             <select
-              class="form-select"
-              [(ngModel)]="espacio.tipo"
-              name="tipo"
+              class="campo-select"
+              [(ngModel)]="espacio.canchaAsociada"
+              name="canchaAsociada"
               [disabled]="isSaving"
-              required
             >
-              <option value="CANCHA">Cancha</option>
-              <option value="SALON">Salón</option>
+              <option [ngValue]="null">Ninguna</option>
+              <option *ngFor="let item of canchasDisponibles" [ngValue]="item">
+                {{ item.nombre }}
+              </option>
             </select>
           </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group checkbox">
+          <!-- Imagen -->
+          <div class="campo">
+            <label class="campo-label">Imagen del espacio (opcional)</label>
             <input
-              type="checkbox"
-              class="form-check-input"
-              id="habilitado"
-              [(ngModel)]="espacio.habilitado"
-              name="habilitado"
-              [disabled]="isSaving"
+              type="file"
+              accept="image/*"
+              class="campo-input"
+              (change)="onArchivoSeleccionado($event)"
+              [disabled]="isSaving || subiendoImagen"
+            />
+            <span
+              *ngIf="subiendoImagen"
+              class="campo-label"
+              style="color: var(--color-principal); margin-top: 0.4rem"
             >
-            <label class="form-check-label" for="habilitado">Espacio Habilitado</label>
+              Subiendo imagen...
+            </span>
+
+            <div *ngIf="espacio.imagenUrl" class="preview-imagen">
+              <img [src]="espacio.imagenUrl" [alt]="espacio.nombre || 'Vista previa'" />
+              <button
+                type="button"
+                class="btn-quitar-imagen"
+                (click)="quitarImagen()"
+                [disabled]="isSaving"
+              >
+                Quitar imagen
+              </button>
+            </div>
           </div>
 
-          <div class="form-group checkbox">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="permiteMediaReserva"
-              [(ngModel)]="espacio.permiteMediaReserva"
-              name="permiteMediaReserva"
+          <div class="form-acciones">
+            <button
+              type="submit"
+              class="btn-primario"
+              [disabled]="!espacioForm.form.valid || isSaving || subiendoImagen"
+            >
+              <span *ngIf="!isSaving">{{
+                editMode ? 'Guardar cambios' : 'Registrar espacio'
+              }}</span>
+              <span *ngIf="isSaving">Guardando...</span>
+            </button>
+            <button
+              type="button"
+              class="btn-secundario"
+              (click)="cancelarEdicion()"
               [disabled]="isSaving"
             >
-            <label class="form-check-label" for="permiteMediaReserva">Permite Media Reserva</label>
+              {{ editMode ? 'Cancelar' : 'Limpiar' }}
+            </button>
           </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Cancha Asociada (Opcional)</label>
-          <select
-            class="form-select"
-            [(ngModel)]="espacio.canchaAsociada"
-            name="canchaAsociada"
-            [disabled]="isSaving"
-          >
-            <option [ngValue]="null">Ninguna</option>
-            <option *ngFor="let item of listaEspacios" [ngValue]="item">
-              {{ item.nombre }} ({{ item.tipo }})
-            </option>
-          </select>
-        </div>
-
-        <div class="form-actions">
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="!espacioForm.form.valid || isSaving"
-          >
-            <span *ngIf="!isSaving">{{ editMode ? 'Guardar cambios' : 'Registrar Espacio' }}</span>
-            <span *ngIf="isSaving">Guardando...</span>
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="cancelarEdicion()"
-            [disabled]="isSaving"
-          >
-            {{ editMode ? 'Cancelar' : 'Limpiar' }}
-          </button>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </section>
 
     <!-- Lista de espacios -->
-    <div class="list-section">
-      <h2>Espacios Registrados</h2>
-      <div *ngIf="isLoadingEspacios" class="loading-spinner">
-        Cargando espacios...
+    <section class="panel-card">
+      <div class="panel-head">
+        <h2>Espacios registrados</h2>
+        <p class="panel-sub" *ngIf="!isLoadingEspacios">{{ listaEspacios.length }} espacio(s)</p>
       </div>
-      <div *ngIf="!isLoadingEspacios && listaEspacios.length === 0" class="empty-state">
+
+      <div *ngIf="isLoadingEspacios" class="estado">
+        <span class="spinner"></span>
+        <p>Cargando espacios...</p>
+      </div>
+
+      <div *ngIf="!isLoadingEspacios && listaEspacios.length === 0" class="estado">
         <p>No hay espacios registrados aún.</p>
       </div>
-      <div *ngIf="!isLoadingEspacios && listaEspacios.length > 0" class="contenedor-lista-scroll">
-        <div class="spaces-grid">
-          <div *ngFor="let espacio of listaEspacios; trackBy: trackByEspacioId" class="space-card">
-          <div class="space-header">
-            <h3>{{ espacio.nombre }}</h3>
-            <span class="space-type" [ngClass]="'type-' + espacio.tipo.toLowerCase()">
-              {{ espacio.tipo }}
-            </span>
+
+      <div *ngIf="!isLoadingEspacios && listaEspacios.length > 0" class="lista-scroll">
+        <article
+          *ngFor="let espacio of listaEspacios; trackBy: trackByEspacioId"
+          class="espacio-card"
+        >
+          <!-- Imagen -->
+          <div class="espacio-card-img" *ngIf="espacio.imagenUrl">
+            <img [src]="espacio.imagenUrl" [alt]="espacio.nombre" />
           </div>
-          <div class="space-info">
+
+          <div class="espacio-card-head">
+            <h3>{{ espacio.nombre }}</h3>
+            <span class="badge badge-tipo">{{ espacio.tipo }}</span>
+          </div>
+
+          <div class="espacio-card-datos">
             <p><strong>Capacidad:</strong> {{ espacio.capacidad }} personas</p>
             <p><strong>Precio:</strong> ${{ espacio.precioBase }}</p>
-            <p><strong>Estado:</strong> {{ espacio.habilitado ? '✓ Habilitado' : '✗ Deshabilitado' }}</p>
-            <p><strong>Media Reserva:</strong> {{ espacio.permiteMediaReserva ? 'Sí' : 'No' }}</p>
-            <p *ngIf="espacio.canchaAsociada">
-              <strong>Cancha Asociada:</strong> {{ espacio.canchaAsociada.nombre }}
+            <p>
+              <strong>Estado:</strong>
+              <span
+                class="badge"
+                [ngClass]="espacio.habilitado ? 'badge-activo' : 'badge-inactivo'"
+              >
+                {{ espacio.habilitado ? 'Habilitado' : 'Deshabilitado' }}
+              </span>
+            </p>
+            <p><strong>Media reserva:</strong> {{ espacio.permiteMediaReserva ? 'Sí' : 'No' }}</p>
+            <p class="dato-full" *ngIf="espacio.canchaAsociada">
+              <strong>Cancha asociada:</strong> {{ espacio.canchaAsociada.nombre }}
             </p>
           </div>
-          <div class="space-actions">
-            <button class="btn" [ngClass]="espacio.habilitado ? 'btn-danger' : 'btn-success'" (click)="espacio.habilitado ? inhabilitarEspacio(espacio) : habilitarEspacio(espacio)">
-              {{ espacio.habilitado ? 'Inhabilitar Espacio' : 'Habilitar Espacio' }}
+
+          <div class="espacio-card-acciones">
+            <button
+              class="btn-accion"
+              [ngClass]="espacio.habilitado ? 'btn-inhabilitar' : 'btn-habilitar'"
+              (click)="espacio.habilitado ? inhabilitarEspacio(espacio) : habilitarEspacio(espacio)"
+            >
+              {{ espacio.habilitado ? 'Inhabilitar' : 'Habilitar' }}
             </button>
-            <button class="btn btn-warning" (click)="editarEspacio(espacio)">Editar Espacio</button>
+            <button class="btn-accion btn-editar" (click)="editarEspacio(espacio)">Editar</button>
           </div>
-          </div>
-        </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal de confirmacion -->
+  <div class="modal-overlay" *ngIf="mostrarModalConfirmacion" (click)="cancelarAccion()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ tituloConfirmacion }}</h3>
+        <button class="modal-cerrar" (click)="cancelarAccion()" [disabled]="isSaving">×</button>
+      </div>
+      <p class="modal-msg">{{ mensajeConfirmacion }}</p>
+      <div class="modal-acciones">
+        <button class="btn-modal-cancelar" (click)="cancelarAccion()" [disabled]="isSaving">
+          Cancelar
+        </button>
+        <button
+          class="btn-modal-confirmar"
+          [ngClass]="tipoAccion === 'inhabilitar' ? 'peligro' : 'exito'"
+          (click)="confirmarAccion()"
+          [disabled]="isSaving"
+        >
+          {{
+            isSaving ? 'Procesando...' : tipoAccion === 'inhabilitar' ? 'Inhabilitar' : 'Habilitar'
+          }}
+        </button>
       </div>
     </div>
   </div>
 </div>
-

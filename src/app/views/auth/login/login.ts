@@ -28,12 +28,12 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/home']);
+      this.router.navigate(['/']);
     }
   }
 
   goHome(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/']);
   }
 
   login(): void {
@@ -69,27 +69,30 @@ export class LoginComponent implements OnInit {
           // extraigo el objeto de datos del usuario que responde tu backend al autenticarse
           // si tu backend envia los datos planos en la raiz o en otra propiedad, adaptala aqui
           const datosUsuario = res?.usuario || res;
-          
+
           if (datosUsuario) {
             // guardo el objeto serializado en el localstorage con la clave que configuramos en el perfil
-            localStorage.setItem('usuario_actual', JSON.stringify({
-              idUsuario: datosUsuario.idUsuario || null,
-              nombre: datosUsuario.nombre || '',
-              apellido: datosUsuario.apellido || '',
-              email: datosUsuario.email || '',
-              telefono: datosUsuario.telefono || '',
-              fechaNacimiento: datosUsuario.fechaNacimiento || '',
-              contrasenia: datosUsuario.contrasenia || '',
-              cedula: datosUsuario.cedula || this.cedula, // uso la cedula ingresada como respaldo
-              tipousuario: datosUsuario.tipousuario || res?.tipoUsuario || 'CLIENTE',
-              estadoUsuario: datosUsuario.estadoUsuario || 'ACTIVO'
-            }));
+            localStorage.setItem(
+              'usuario_actual',
+              JSON.stringify({
+                idUsuario: datosUsuario.idUsuario || null,
+                nombre: datosUsuario.nombre || '',
+                apellido: datosUsuario.apellido || '',
+                email: datosUsuario.email || '',
+                telefono: datosUsuario.telefono || '',
+                fechaNacimiento: datosUsuario.fechaNacimiento || '',
+                contrasenia: datosUsuario.contrasenia || '',
+                cedula: datosUsuario.cedula || this.cedula, // uso la cedula ingresada como respaldo
+                tipousuario: datosUsuario.tipousuario || res?.tipoUsuario || 'CLIENTE',
+                estadoUsuario: datosUsuario.estadoUsuario || 'ACTIVO',
+              }),
+            );
           }
 
           this.successMessage = 'Login exitoso. Redirigiendo...';
 
           setTimeout(() => {
-            this.router.navigate(['/home']);
+            this.router.navigate(['/']);
           }, 500);
         },
 

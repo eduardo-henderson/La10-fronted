@@ -43,13 +43,19 @@ export class LayoutComponent {
     {
       texto: 'Registrar Espacio',
       ruta: '/registro-espacio',
-      icono: 'bi bi-bookmark-star',
+      icono: 'bi bi-clipboard-plus',
       soloAdmin: true,
     },
     {
       texto: 'Control Reservas',
       ruta: '/reservas-globales',
       icono: 'bi bi-clipboard-data',
+      soloAdmin: true,
+    },
+    {
+      texto: 'Usuarios',
+      ruta: '/usuarios',
+      icono: 'bi bi-people',
       soloAdmin: true,
     },
   ];
