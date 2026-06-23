@@ -11,13 +11,16 @@ import { AdminComponent } from './views/admin/admin';
 import { EspaciosComponent } from './views/espacios/espacios';
 import { EspacioDetalleComponent } from './views/espacios/espacio-detalle/espacio-detalle';
 
+// IMPORTACIÓN CORREGIDA: Apunta exactamente a tu archivo físico "editarusaurio"
+import { EditarUsuarioComponent } from './views/editarUsuario/editarusuario'; 
+
 export const routes: Routes = [
-  // sin layout
+  // Rutas públicas (Sin diseño/layout de usuario logueado)
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
   { path: 'admin', component: AdminComponent },
 
-  // con layout
+  // Rutas privadas/protegidas (Con diseño/layout común)
   {
     path: '',
     component: LayoutComponent,
@@ -25,14 +28,17 @@ export const routes: Routes = [
       { path: '', component: EspaciosComponent, pathMatch: 'full' },
       { path: 'home', component: EspaciosComponent },
       { path: 'registro-espacio', component: RegistroEspacioComponent },
-      // { path: 'espacios', component: registroespaciocomponent },
       { path: 'reservas', component: ReservasComponent },
       { path: 'reservas-globales', component: ReservasGlobalesComponent },
       { path: 'disponibilidad', component: Disponibilidad },
-      { path: 'espacios', component: EspaciosComponent }, // grilla (era registroespaciocomponent)
+      { path: 'espacios', component: EspaciosComponent }, 
       { path: 'espacios/:id', component: EspacioDetalleComponent },
-      // agregue la ruta perfil aqui dentro para que se renderice con el menu y la barra superior
-      { path: 'perfil', component: RegistroComponent },
+      
+      // RUTA CORREGIDA: Ahora abre tu componente independiente de edición
+      { path: 'perfil', component: EditarUsuarioComponent },
     ],
   },
+  
+  // Ruta comodín por si escriben cualquier otra cosa en la URL
+  { path: '**', redirectTo: 'home' }
 ];

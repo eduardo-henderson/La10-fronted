@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; // 🔥 agrega oninit
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -23,7 +23,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef, // 🔥 inyectado aqui
+    private cdr: ChangeDetectorRef, 
   ) {}
 
   ngOnInit(): void {
@@ -50,38 +50,44 @@ export class LoginComponent implements OnInit {
       .login(this.cedula, this.contrasenia)
       .pipe(
         finalize(() => {
-          // siempre se ejecuta (exito o error)
           this.isLoading = false;
-          this.cdr.detectChanges(); // obligamos al html a actualizar sus variables en pantalla
+          this.cdr.detectChanges(); 
         }),
       )
       .subscribe({
         next: (res) => {
+          console.log('Respuesta del Backend al iniciar sesión:', res);
+
           const token = res?.token || res?.jwt || res?.accessToken;
 
           if (token) {
+            // 1. Guardamos el token primero en el disco
             localStorage.setItem('auth_token', token);
           }
-          if (res?.tipoUsuario) {
-            localStorage.setItem('user_role', res.tipoUsuario); // almacena el rol del usuario para admin panel o funcionalidades especificas a un rol
+          
+          const rol = res?.tipoUsuario || res?.usuario?.tipousuario || res?.tipousuario;
+          if (rol) {
+            localStorage.setItem('user_role', rol); 
           }
 
-          // extraigo el objeto de datos del usuario que responde tu backend al autenticarse
-          // si tu backend envia los datos planos en la raiz o en otra propiedad, adaptala aqui
+          // 2. SOLUCIÓN MAESTRA: Extraemos el ID real decodificando el token JWT recién guardado
+          const idRealDesdeToken = this.authService.getUsuarioId();
+          console.log('ID extraído exitosamente del JWT:', idRealDesdeToken);
+
           const datosUsuario = res?.usuario || res;
           
           if (datosUsuario) {
-            // guardo el objeto serializado en el localstorage con la clave que configuramos en el perfil
             localStorage.setItem('usuario_actual', JSON.stringify({
-              idUsuario: datosUsuario.idUsuario || null,
+              idUsuario: idRealDesdeToken || null, // Usamos el ID del token
+              idusuario: idRealDesdeToken || null, // Duplicamos por consistencia de base de datos
               nombre: datosUsuario.nombre || '',
               apellido: datosUsuario.apellido || '',
               email: datosUsuario.email || '',
               telefono: datosUsuario.telefono || '',
               fechaNacimiento: datosUsuario.fechaNacimiento || '',
-              contrasenia: datosUsuario.contrasenia || '',
-              cedula: datosUsuario.cedula || this.cedula, // uso la cedula ingresada como respaldo
-              tipousuario: datosUsuario.tipousuario || res?.tipoUsuario || 'CLIENTE',
+              contrasenia: datosUsuario.contrasenia || this.contrasenia, 
+              cedula: datosUsuario.cedula || this.cedula, 
+              tipousuario: rol || 'CLIENTE',
               estadoUsuario: datosUsuario.estadoUsuario || 'ACTIVO'
             }));
           }
@@ -95,20 +101,16 @@ export class LoginComponent implements OnInit {
 
         error: (err) => {
           console.log('ERROR LLEGÓ AL COMPONENTE', err);
-
           let mensaje = 'Error al iniciar sesión';
-
           if (err.error?.message) {
             mensaje = err.error.message;
           }
-
           if (err.status === 401) {
             mensaje = mensaje || 'Usuario o contraseña incorrectos';
           } else if (err.status === 403) {
             mensaje = 'Acceso denegado';
           }
-
-          this.errorMessage = mensaje; // al asignarlo aqui, finalize detectara el cambio y repintara el html
+          this.errorMessage = mensaje; 
         },
       });
   }

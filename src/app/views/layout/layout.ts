@@ -19,37 +19,41 @@ interface ItemMenu {
   templateUrl: './layout.html',
   styleUrls: ['./layout.css'],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
   private router = inject(Router);
   protected auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   menuPerfilAbierto = false;
 
   constructor() {
-    // suscribirse a cambios de autenticación para forzar re-render cuando cambie token/rol
     this.auth.isAuthenticated$.subscribe(() => {
       try {
-        this.cdr.detectChanges();
+        // ejecucion asincrona diferida para evitar el error de ciclo de angular
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 0);
       } catch (e) {
         // ignore
       }
     });
   }
 
-  // items del sidebar, los "soloLogueado" se muestran solo si el usuario está logueado
+  ngOnInit(): void {
+    // se fuerza una estabilizacion de la vista al inicializar el componente
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
     { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
+    { texto: 'Registrar Espacio', ruta: '/registro-espacio', icono: 'bi bi-bookmark-star', soloAdmin: true },
+    { texto: 'Editar Espacio', ruta: '/registro-espacio', icono: 'bi bi-pencil-square', soloAdmin: true },
     {
-      texto: 'Registrar Espacio',
-      ruta: '/registro-espacio',
-      icono: 'bi bi-bookmark-star',
-      soloAdmin: true,
-    },
-    {
-      texto: 'Control Reservas',
-      ruta: '/reservas-globales',
-      icono: 'bi bi-clipboard-data',
+      texto: 'Disponibilidad',
+      ruta: '/disponibilidad',
+      icono: 'bi bi-calendar2-range',
       soloAdmin: true,
     },
   ];
@@ -74,7 +78,6 @@ export class LayoutComponent {
     this.menuPerfilAbierto = !this.menuPerfilAbierto;
   }
 
-  // cerrar con click afuera del dropdown
   @HostListener('document:click', ['$event'])
   cerrarSiClickAfuera(evento: MouseEvent): void {
     const objetivo = evento.target as HTMLElement;

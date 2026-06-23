@@ -1,78 +1,68 @@
-<div class="container mt-4">
-  <h2>Editar Usuario</h2>
-  <hr>
-
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
-  <div *ngIf="successMessage" class="alert alert-success" role="alert">
-    {{ successMessage }}
-  </div>
-
-  <div *ngIf="isLoading" class="text-center my-4">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Cargando datos...</span>
-    </div>
-  </div>
-
-  <form *ngIf="!isLoading" #userForm="ngForm" (ngSubmit)="guardarCambios(userForm)">
+<div class="login-container">
+  <div class="login-box">
     
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="cedula" class="form-label">Cédula de Identidad</label>
-        <input type="text" id="cedula" name="cedula" class="form-control bg-light" 
-               [(ngModel)]="usuario.cedula" readonly>
-        <small class="text-muted">La cédula no puede modificarse.</small>
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <label for="email" class="form-label">Correo Electrónico *</label>
-        <input type="email" id="email" name="email" class="form-control" 
-               [(ngModel)]="usuario.email" required email #emailRef="ngModel"
-               [class.is-invalid]="emailRef.invalid && emailRef.touched">
-        <div class="invalid-feedback">Por favor introduce un email válido.</div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="nombre" class="form-label">Nombre *</label>
-        <input type="text" id="nombre" name="nombre" class="form-control" 
-               [(ngModel)]="usuario.nombre" required #nombreRef="ngModel"
-               [class.is-invalid]="nombreRef.invalid && nombreRef.touched">
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <label for="apellido" class="form-label">Apellido *</label>
-        <input type="text" id="apellido" name="apellido" class="form-control" 
-               [(ngModel)]="usuario.apellido" required #apellidoRef="ngModel"
-               [class.is-invalid]="apellidoRef.invalid && apellidoRef.touched">
-      </div>
-    </div>
-
-    <div class="card my-4 p-3 bg-light">
-      <h5 class="card-title">Seguridad (Opcional)</h5>
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="claveActual" class="form-label">Contraseña Actual</label>
-          <input type="password" id="claveActual" name="claveActual" class="form-control" 
-                 [(ngModel)]="usuario.claveActual" placeholder="Ingresa tu contraseña actual si deseas cambiarla">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="nuevaClave" class="form-label">Nueva Contraseña</label>
-          <input type="password" id="nuevaClave" name="nuevaClave" class="form-control" 
-                 [(ngModel)]="usuario.nuevaClave" placeholder="Nueva contraseña">
-        </div>
-      </div>
-    </div>
-
-    <div class="d-flex justify-content-end gap-2">
-      <button type="button" class="btn btn-secondary" routerLink="/reservas">Cancelar</button>
-      <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || isSaving">
-        <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
-        {{ isSaving ? 'Guardando...' : 'Guardar Cambios' }}
+    <div class="login-header">
+      <button type="button" (click)="goHome()" class="btn-back-top" title="Volver a inicio">
+        ← Atrás
       </button>
+      <h1>Editar Cuenta</h1>
+      <p>Modifica los datos de tu perfil administrativo</p>
     </div>
 
-  </form>
+    <!-- Alerta Dinámica de Éxito NAtiva de tu App -->
+    <div class="alert alert-success" *ngIf="successMessage" style="margin-bottom: 20px; background: #dcfce7; color: #166534; padding: 12px; border-radius: 6px; border-left: 4px solid #16a34a; font-size: 14px;">
+      <strong>✓ Operación Exitosa</strong>
+      {{ successMessage }}
+    </div>
+
+    <!-- Alerta Dinámica de Error -->
+    <div class="alert alert-error" *ngIf="errorMessage" style="margin-bottom: 20px; background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; border-left: 4px solid #dc2626; font-size: 14px;">
+      <strong>⚠️ Error del Sistema</strong>
+      {{ errorMessage }}
+    </div>
+
+    <!-- Alerta preventiva de Sesión -->
+    <div class="alert alert-error" *ngIf="!usuario.idUsuario && !successMessage && !errorMessage" style="margin-bottom: 20px; background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px;">
+      <strong>⚠️ Error:</strong> No se encontró la sesión del usuario.
+    </div>
+
+    <form class="login-form form-grid" #userForm="ngForm" (ngSubmit)="guardarCambios(userForm)">
+      
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" class="form-control" name="nombre" [(ngModel)]="usuario.nombre" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Apellido</label>
+        <input type="text" class="form-control" name="apellido" [(ngModel)]="usuario.apellido" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cédula</label>
+        <input type="text" class="form-control" name="cedula" [(ngModel)]="usuario.cedula" required disabled style="background-color: #f5f5f5; color: #999;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Correo Electrónico *</label>
+        <input type="email" class="form-control" name="email" [(ngModel)]="usuario.email" required placeholder="ejemplo@correo.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contraseña Actual</label>
+        <input type="password" class="form-control" name="claveActual" [(ngModel)]="usuario.claveActual" placeholder="********">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nueva Contraseña</label>
+        <input type="password" class="form-control" name="nuevaClave" [(ngModel)]="usuario.nuevaClave" placeholder="Nueva contraseña">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block full-width" style="margin-top: 20px;" [disabled]="isSaving">
+        {{ isSaving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
+      </button>
+
+    </form>
+
+  </div>
 </div>
