@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; // 🔥 Agrega OnInit
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; // 🔥 agrega oninit
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -23,7 +23,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef, // 🔥 Inyectado aquí
+    private cdr: ChangeDetectorRef, // 🔥 inyectado aqui
   ) {}
 
   ngOnInit(): void {
@@ -50,9 +50,9 @@ export class LoginComponent implements OnInit {
       .login(this.cedula, this.contrasenia)
       .pipe(
         finalize(() => {
-          // 🔥 SIEMPRE se ejecuta (éxito o error)
+          // siempre se ejecuta (exito o error)
           this.isLoading = false;
-          this.cdr.detectChanges(); // 🔥 Obligamos al HTML a actualizar sus variables en pantalla
+          this.cdr.detectChanges(); // obligamos al html a actualizar sus variables en pantalla
         }),
       )
       .subscribe({
@@ -63,7 +63,27 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('auth_token', token);
           }
           if (res?.tipoUsuario) {
-            localStorage.setItem('user_role', res.tipoUsuario); // Almacena el rol del usuario para admin panel o funcionalidades especificas a un rol
+            localStorage.setItem('user_role', res.tipoUsuario); // almacena el rol del usuario para admin panel o funcionalidades especificas a un rol
+          }
+
+          // extraigo el objeto de datos del usuario que responde tu backend al autenticarse
+          // si tu backend envia los datos planos en la raiz o en otra propiedad, adaptala aqui
+          const datosUsuario = res?.usuario || res;
+          
+          if (datosUsuario) {
+            // guardo el objeto serializado en el localstorage con la clave que configuramos en el perfil
+            localStorage.setItem('usuario_actual', JSON.stringify({
+              idUsuario: datosUsuario.idUsuario || null,
+              nombre: datosUsuario.nombre || '',
+              apellido: datosUsuario.apellido || '',
+              email: datosUsuario.email || '',
+              telefono: datosUsuario.telefono || '',
+              fechaNacimiento: datosUsuario.fechaNacimiento || '',
+              contrasenia: datosUsuario.contrasenia || '',
+              cedula: datosUsuario.cedula || this.cedula, // uso la cedula ingresada como respaldo
+              tipousuario: datosUsuario.tipousuario || res?.tipoUsuario || 'CLIENTE',
+              estadoUsuario: datosUsuario.estadoUsuario || 'ACTIVO'
+            }));
           }
 
           this.successMessage = 'Login exitoso. Redirigiendo...';
@@ -74,7 +94,7 @@ export class LoginComponent implements OnInit {
         },
 
         error: (err) => {
-          console.log('🔥 ERROR LLEGÓ AL COMPONENTE', err);
+          console.log('ERROR LLEGÓ AL COMPONENTE', err);
 
           let mensaje = 'Error al iniciar sesión';
 
@@ -88,7 +108,7 @@ export class LoginComponent implements OnInit {
             mensaje = 'Acceso denegado';
           }
 
-          this.errorMessage = mensaje; // Al asignarlo aquí, finalize detectará el cambio y repintará el html
+          this.errorMessage = mensaje; // al asignarlo aqui, finalize detectara el cambio y repintara el html
         },
       });
   }

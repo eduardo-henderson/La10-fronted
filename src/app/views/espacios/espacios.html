@@ -34,8 +34,9 @@
     No hay espacios disponibles en esta categoría.
   </p>
 
-  <div *ngIf="datoslista.length > 0" class="espacios-grid">
-    <button *ngFor="let espacio of datoslista" class="espacio-item" (click)="abrirEspacio(espacio)">
+  <div *ngIf="datoslista.length > 0" class="contenedor-lista-scroll">
+    <div class="espacios-grid">
+      <button *ngFor="let espacio of datoslista" class="espacio-item" (click)="abrirEspacio(espacio)">
       <div class="grid-item-imagen">
         <i class="bi bi-image"></i>
       </div>
@@ -44,6 +45,7 @@
         <p class="grid-item-detalle">{{ detalle(espacio) }}</p>
         <p class="grid-item-precio">${{ espacio.precioBase }}</p>
       </div>
-    </button>
+      </button>
+    </div>
   </div>
 </ng-template>

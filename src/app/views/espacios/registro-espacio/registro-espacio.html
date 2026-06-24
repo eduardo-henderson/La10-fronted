@@ -5,9 +5,9 @@
       ← Atrás
     </button>
     <h1>Registro de Espacios</h1>
-     <button (click)="irADisponibilidad()" class="btn btn-info">
-      Ver Disponibilidad
-    </button>
+    <!-- <button (click)="irADisponibilidad()" class="btn btn-info">
+     <Ver Disponibilidad 
+    </button>-->
     <button (click)="logout()" class="btn btn-logout">Cerrar Sesión</button>
   </div>
 
@@ -16,14 +16,30 @@
     <strong>⚠️ Error:</strong> {{ errorMessage }}
   </div>
 
-  <div *ngIf="successMessage" class="alert alert-success">
-    <strong>✓ Éxito:</strong> {{ successMessage }}
+  <div *ngIf="successMessage" class="alert" [ngClass]="tipoAccion === 'inhabilitar' ? 'alert-error' : 'alert-success'">
+    <strong>{{ tipoAccion === 'inhabilitar' ? '✓ Inhabilitado:' : '✓ Éxito:' }}</strong> {{ successMessage }}
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div *ngIf="mostrarModalConfirmacion" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="modal-title">{{ tituloConfirmacion }}</h2>
+      <p class="modal-message">{{ mensajeConfirmacion }}</p>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" (click)="cancelarAccion()" [disabled]="isSaving">
+          Cancelar
+        </button>
+        <button class="btn" [ngClass]="tipoAccion === 'inhabilitar' ? 'btn-danger' : 'btn-success'" (click)="confirmarAccion()" [disabled]="isSaving">
+          {{ isSaving ? 'Procesando...' : (tipoAccion === 'inhabilitar' ? 'Inhabilitar' : 'Habilitar') }}
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="content-espacios">
     <!-- Formulario de registro -->
     <div class="form-section">
-      <h2>Nuevo Espacio</h2>
+      <h2>{{ editMode ? 'Editar Espacio' : 'Nuevo Espacio' }}</h2>
       <form (ngSubmit)="guardar(espacioForm)" #espacioForm="ngForm">
 
         <div class="form-row">
@@ -131,16 +147,16 @@
             class="btn btn-primary"
             [disabled]="!espacioForm.form.valid || isSaving"
           >
-            <span *ngIf="!isSaving">Registrar Espacio</span>
+            <span *ngIf="!isSaving">{{ editMode ? 'Guardar cambios' : 'Registrar Espacio' }}</span>
             <span *ngIf="isSaving">Guardando...</span>
           </button>
           <button
             type="button"
             class="btn btn-secondary"
-            (click)="limpiarFormulario()"
+            (click)="cancelarEdicion()"
             [disabled]="isSaving"
           >
-            Limpiar
+            {{ editMode ? 'Cancelar' : 'Limpiar' }}
           </button>
         </div>
       </form>
@@ -155,8 +171,9 @@
       <div *ngIf="!isLoadingEspacios && listaEspacios.length === 0" class="empty-state">
         <p>No hay espacios registrados aún.</p>
       </div>
-      <div *ngIf="!isLoadingEspacios && listaEspacios.length > 0" class="spaces-grid">
-        <div *ngFor="let espacio of listaEspacios" class="space-card">
+      <div *ngIf="!isLoadingEspacios && listaEspacios.length > 0" class="contenedor-lista-scroll">
+        <div class="spaces-grid">
+          <div *ngFor="let espacio of listaEspacios; trackBy: trackByEspacioId" class="space-card">
           <div class="space-header">
             <h3>{{ espacio.nombre }}</h3>
             <span class="space-type" [ngClass]="'type-' + espacio.tipo.toLowerCase()">
@@ -173,7 +190,11 @@
             </p>
           </div>
           <div class="space-actions">
-            <button class="btn btn-primary" (click)="reservarEspacio(espacio)">Reservar</button>
+            <button class="btn" [ngClass]="espacio.habilitado ? 'btn-danger' : 'btn-success'" (click)="espacio.habilitado ? inhabilitarEspacio(espacio) : habilitarEspacio(espacio)">
+              {{ espacio.habilitado ? 'Inhabilitar Espacio' : 'Habilitar Espacio' }}
+            </button>
+            <button class="btn btn-warning" (click)="editarEspacio(espacio)">Editar Espacio</button>
+          </div>
           </div>
         </div>
       </div>

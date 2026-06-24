@@ -1,4 +1,5 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../service/auth.service';
@@ -21,22 +22,34 @@ interface ItemMenu {
 export class LayoutComponent {
   private router = inject(Router);
   protected auth = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
   menuPerfilAbierto = false;
+
+  constructor() {
+    // suscribirse a cambios de autenticación para forzar re-render cuando cambie token/rol
+    this.auth.isAuthenticated$.subscribe(() => {
+      try {
+        this.cdr.detectChanges();
+      } catch (e) {
+        // ignore
+      }
+    });
+  }
 
   // items del sidebar, los "soloLogueado" se muestran solo si el usuario está logueado
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
     { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
     {
-      texto: 'Control Reservas',
-      ruta: '/reservas-globales',
-      icono: 'bi bi-clipboard-data',
+      texto: 'Registrar Espacio',
+      ruta: '/registro-espacio',
+      icono: 'bi bi-bookmark-star',
       soloAdmin: true,
     },
     {
-      texto: 'Disponibilidad',
-      ruta: '/disponibilidad',
-      icono: 'bi bi-calendar2-range',
+      texto: 'Control Reservas',
+      ruta: '/reservas-globales',
+      icono: 'bi bi-clipboard-data',
       soloAdmin: true,
     },
   ];

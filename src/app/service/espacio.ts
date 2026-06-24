@@ -75,13 +75,12 @@ export class EspacioService {
 
   /**
    * Actualiza un espacio existente
-   * @param id ID del espacio
-   * @param espacio Nuevos datos del espacio
+   * @param espacio Nuevos datos del espacio, debe incluir idEspacio
    * @returns Observable con el espacio actualizado
    */
-  actualizarEspacio(id: number, espacio: Espacio): Observable<Espacio> {
+  actualizarEspacio(espacio: Espacio): Observable<Espacio> {
     return this.http
-      .put<Espacio>(`${this.apiUrl}/${id}`, espacio)
+      .put<Espacio>(`${this.apiUrl}/update`, espacio)
       .pipe(catchError((err) => this.handleError(err)));
   }
 
@@ -93,6 +92,21 @@ export class EspacioService {
   desactivarEspacio(id: number): Observable<void> {
     return this.http
       .patch<void>(`${this.apiUrl}/${id}/mantenimiento`, {})
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
+  /**
+   * Inhabilita un espacio existente (establece habilitado: false)
+   * @param espacio Objeto Espacio completo a inhabilitar
+   * @returns Observable con el espacio actualizado
+   */
+  inhabilitarEspacio(espacio: Espacio): Observable<Espacio> {
+    const espacioInhabilitado = {
+      ...espacio,
+      habilitado: false,
+    };
+    return this.http
+      .put<Espacio>(`${this.apiUrl}/update`, espacioInhabilitado)
       .pipe(catchError((err) => this.handleError(err)));
   }
 
@@ -135,7 +149,8 @@ export class EspacioService {
     }
 
     console.error('Error en EspacioService:', errorMessage, error);
-    return throwError(() => new Error(errorMessage));
+    // Devolver el error original preservando el status HTTP para el componente
+    return throwError(() => error);
   }
 
   getDisponibilidadHoy(tipo: string) {

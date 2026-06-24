@@ -50,6 +50,7 @@ export const authInterceptor = (
         }
       }
 
+      // Dejar que el componente maneje el 403 para mostrar la alerta en el mismo formato de la app.
       return throwError(() => error);
     })
   );
