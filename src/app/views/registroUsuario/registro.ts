@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -11,8 +11,12 @@ import { AuthService } from '../../service/auth.service';
   templateUrl: './registro.html',
   styleUrls: ['./registro.css'],
 })
+
 export class RegistroComponent implements OnInit {
-  // mantengo el objeto con todos los campos correspondientes a tu entidad
+  private router = inject(Router);
+  protected authService = inject(AuthService);
+
+  // El objeto del usuario arranca siempre limpio para un registro nuevo
   usuario = {
     idUsuario: null,
     nombre: '',
@@ -26,26 +30,10 @@ export class RegistroComponent implements OnInit {
     estadoUsuario: 'ACTIVO',
   };
 
-  // mantengo la bandera para gestionar el comportamiento de la pantalla
-  esEdicion: boolean = false;
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-  ) {}
+    constructor() {}
 
   ngOnInit(): void {
-    // invoco la lectura del almacenamiento local al inicializar
-    this.comprobarModoVista();
-  }
-
-  comprobarModoVista(): void {
-    // verifico si el perfil esta guardado en el almacenamiento local
-    const usuarioLogueado = localStorage.getItem('usuario_actual');
-    if (usuarioLogueado) {
-      this.esEdicion = true;
-      this.usuario = JSON.parse(usuarioLogueado);
-    }
+    // Queda vacío de forma limpia para el registro nuevo
   }
 
   goHome(): void {
@@ -54,7 +42,6 @@ export class RegistroComponent implements OnInit {
 
   onRegister() {
     console.log('Datos del usuario a registrar:', this.usuario);
-    // asigne el tipo unknown a los parametros para eliminar el error de any implicito
     this.authService.registro(this.usuario).subscribe({
       next: (response: unknown) => {
         alert('¡Usuario registrado con éxito!');
@@ -66,19 +53,5 @@ export class RegistroComponent implements OnInit {
       },
     });
   }
-
-  onEditar(): void {
-    console.log('enviando cambios de perfil unificados:', this.usuario);
-    // asigne el tipo unknown a las respuestas para evitar restricciones estrictas
-    this.authService.editarUsuario(this.usuario).subscribe({
-      next: (response: unknown) => {
-        alert('datos actualizados con exito');
-        localStorage.setItem('usuario_actual', JSON.stringify(this.usuario));
-      },
-      error: (error: unknown) => {
-        console.error(error);
-        alert('error al intentar actualizar los datos');
-      },
-    });
-  }
 }
+

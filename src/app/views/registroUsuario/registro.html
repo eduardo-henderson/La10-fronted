@@ -5,13 +5,11 @@
       <button type="button" (click)="goHome()" class="btn-back-top" title="Volver a inicio">
         ← Atrás
       </button>
-      <!-- cambie de manera dinamica el titulo de la cabecera segun el modo de la pantalla -->
-      <h1>{{ esEdicion ? 'Editar Cuenta' : 'Crear Cuenta' }}</h1>
-      <p>{{ esEdicion ? 'Modifica los datos de tu perfil administrativo' : 'Completa tus datos para registrarte' }}</p>
+      <h1>Crear Cuenta</h1>
+      <p>Completa tus datos para registrarte</p>
     </div>
 
-    <!-- cambie el metodo al hacer submit para que llame a onEditar() o onRegister() segun corresponda -->
-    <form class="login-form form-grid" (ngSubmit)="esEdicion ? onEditar() : onRegister()">
+    <form class="login-form form-grid" (ngSubmit)="onRegister()">
       
       <div class="form-group">
         <label class="form-label">Nombre</label>
@@ -25,8 +23,7 @@
 
       <div class="form-group">
         <label class="form-label">Cédula</label>
-        <!-- aplique la directiva disabled para bloquear la cedula unicamente cuando es edicion -->
-        <input type="text" class="form-control" name="cedula" [(ngModel)]="usuario.cedula" required [disabled]="esEdicion">
+        <input type="text" class="form-control" name="cedula" [(ngModel)]="usuario.cedula" required>
       </div>
 
       <div class="form-group">
@@ -44,27 +41,18 @@
         <input type="date" class="form-control" name="fechaNacimiento" [(ngModel)]="usuario.fechaNacimiento" required>
       </div>
 
-      <!-- mantengo la contrasenia en dos columnas o ancho completo segun prefieras porque ahora es editable -->
-      <div class="form-group" [class.full-width]="esEdicion">
+      <div class="form-group">
         <label class="form-label">Contraseña</label>
         <input type="password" class="form-control" name="contrasenia" [(ngModel)]="usuario.contrasenia" required placeholder="********">
       </div>
 
-      <!-- renderizo el estado del usuario bloqueado unicamente si la pantalla esta en modo edicion -->
-      <div class="form-group" *ngIf="esEdicion">
-        <label class="form-label">Estado de Usuario</label>
-        <input type="text" class="form-control" name="estadoUsuario" [(ngModel)]="usuario.estadoUsuario" disabled>
-      </div>
-
-      <!-- cambie el texto del boton principal de forma dinamica con una condicion -->
       <button type="submit" class="btn btn-primary btn-block full-width">
-        {{ esEdicion ? 'Guardar Cambios' : 'Registrarse' }}
+        REGISTRARSE
       </button>
 
     </form>
 
-    <!-- oculte el pie de pagina con el enlace al login si el usuario ya esta editando su perfil -->
-    <div class="login-footer" *ngIf="!esEdicion">
+    <div class="login-footer">
       <button class="toggle-password" style="position: static; font-size: 14px; color: #e40b0b;" routerLink="/login">
         ¿Ya tienes cuenta? Inicia sesión
       </button>

@@ -19,7 +19,7 @@ interface ItemMenu {
   templateUrl: './layout.html',
   styleUrls: ['./layout.css'],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
   private router = inject(Router);
   protected auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
@@ -33,12 +33,18 @@ export class LayoutComponent {
     });
   }
 
-  // items del sidebar, los "soloLogueado" se muestran solo si el usuario está logueado
+  ngOnInit(): void {
+    // se fuerza una estabilizacion de la vista al inicializar el componente
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
     { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
     {
-      texto: 'Registrar Espacio',
+      texto: 'Administrar Espacios',
       ruta: '/registro-espacio',
       icono: 'bi bi-clipboard-plus',
       soloAdmin: true,
@@ -81,7 +87,6 @@ export class LayoutComponent {
     this.menuPerfilAbierto = !this.menuPerfilAbierto;
   }
 
-  // cerrar con click afuera del dropdown
   @HostListener('document:click', ['$event'])
   cerrarSiClickAfuera(evento: MouseEvent): void {
     const objetivo = evento.target as HTMLElement;

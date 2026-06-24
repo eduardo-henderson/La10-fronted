@@ -10,16 +10,16 @@
 
   <div class="filter-section-top">
     <div class="filter-toggle-group">
-      <button 
-        (click)="cambiarFiltro('CANCHA')" 
+      <button
+        (click)="cambiarFiltro('CANCHA')"
         [class.active]="tipoSeleccionado === 'CANCHA'"
         class="filter-toggle-btn"
       >
         Canchas
       </button>
-      
-      <button 
-        (click)="cambiarFiltro('SALON')" 
+
+      <button
+        (click)="cambiarFiltro('SALON')"
         [class.active]="tipoSeleccionado === 'SALON'"
         class="filter-toggle-btn"
       >
@@ -53,7 +53,7 @@
           </div>
 
           <div class="horarios" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-            <button 
+            <button
               *ngFor="let h of espacio.horariosDisponibles"
               class="btn-horario"
             >
