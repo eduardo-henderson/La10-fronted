@@ -39,13 +39,17 @@
 
             <div class="reserva-info">
               <p><strong>Tipo:</strong> {{ item.tipoDeReserva }}</p>
-              <p><strong>Precio Total:</strong> <span class="reserva-price">${{ item.precioTotal }}</span></p>
-             
+              <p><strong>Precio Total:</strong> <span class="reserva-price">${{ item.precioSubTotal }}</span></p>
+            
               <p>
                 <strong>Estado:</strong> 
                 <span class="estado-tag" [attr.data-estado]="item.estadoDeReserva">
                   {{ item.estadoDeReserva }}
                 </span>
+              </p>
+
+              <p *ngIf="item.estadoDeReserva === 'CANCELADO' && item.motivoCanc" style="font-size: 0.9rem; color: #dc3545;">
+                <strong>Motivo de cancelación: </strong> <em>{{ item.motivoCanc }}</em>
               </p>
 
               <p *ngIf="item.necesitaRival" class="tag-rival">
@@ -57,10 +61,43 @@
                   ❌ Cancelar Reserva
                 </button>
               </div>
-
-           </div>
+            </div>
 
           </div>
+        </div>
+
+        <div *ngIf="!isLoadingReservas && totalElementos > 0" class="paginacion-container" style="flex-direction: column; gap: 10px;">
+          
+          <div class="info-totales" style="color: var(--color-texto); font-size: 0.85rem; opacity: 0.8; text-align: center;">
+            <span *ngIf="elementosPagina === totalElementos">
+              Mostrando las {{ totalElementos }} reservas encontradas
+            </span>
+            
+            <span *ngIf="elementosPagina !== totalElementos">
+              Resultados {{ desdeElemento }} al {{ hastaElemento }} de un total de {{ totalElementos }}
+            </span>
+          </div>
+
+          <div *ngIf="totalPaginas > 1" style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%;">
+            <button 
+              class="btn-paginacion" 
+              (click)="paginaAnterior()" 
+              [disabled]="esPrimeraPagina">
+              « Anterior
+            </button>
+            
+            <span class="info-paginas">
+              Página {{ paginaActual + 1 }} de {{ totalPaginas }}
+            </span>
+
+            <button 
+              class="btn-paginacion" 
+              (click)="paginaSiguiente()" 
+              [disabled]="esUltimaPagina">
+              Siguiente »
+            </button>
+          </div>
+
         </div>
 
       </section>

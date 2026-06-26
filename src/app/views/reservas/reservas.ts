@@ -23,6 +23,16 @@ export class ReservasComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
+  //paginacion para Mis Reservas
+  paginaActual: number = 0;
+  tamanioPagina: number = 5;
+  totalPaginas: number = 0;
+  esPrimeraPagina: boolean = true;
+  esUltimaPagina: boolean = true;
+
+  totalElementos: number = 0;
+  elementosPagina: number = 0;
+
   constructor(
     private espacioService: EspacioService,
     private reservaService: ReservaService,
@@ -74,10 +84,10 @@ export class ReservasComponent implements OnInit {
     this.isLoadingReservas = true;
     this.errorMessage = '';
 
-    //EXTRAEMOS EL ID DESDE LOGICA DE TOKEN
+    //extraemos el ID desde la logica de token
     const idUsuario = this.authService.getUsuarioId(); 
 
-    //validar de seguridad por si no hay sesin o da 0
+    //validacion de seguridad por si no hay sesion o da 0
     if (idUsuario === 0) {
       this.errorMessage = 'No se pudo identificar tu ID de usuario desde la sesión.';
       this.isLoadingReservas = false;
@@ -85,10 +95,29 @@ export class ReservasComponent implements OnInit {
       return;
     }
 
-// listar reservas LE PASAMOS EL ID REAL DEL USUARIO LOGUEADO AL SERVICIO
-    this.reservaService.listarReservas(idUsuario).subscribe({
+    //listar reservas pasando el ID real, pagina y tamaño
+    this.reservaService.listarReservas(idUsuario, this.paginaActual, this.tamanioPagina).subscribe({
       next: (resp: any) => {
-        this.reservas = resp && Array.isArray(resp.data) ? resp.data : [];
+        //extraemos la lista desde resp.data.content siguiendo la forma de Spring Data Page
+        if (resp && resp.data && Array.isArray(resp.data.content)) {
+          this.reservas = resp.data.content;
+          
+          // Mapeamos los indicadores de paginación del back
+          this.totalPaginas = resp.data.totalPages ?? 1;
+          this.esPrimeraPagina = resp.data.first ?? true;
+          this.esUltimaPagina = resp.data.last ?? true;
+
+          // NUEVO: Guardamos los contadores exactos del servidor
+          this.totalElementos = resp.data.totalElements ?? 0;
+          this.elementosPagina = resp.data.numberOfElements ?? 0;
+        } else {
+          this.reservas = [];
+          this.totalPaginas = 0;
+          this.totalElementos = 0;
+          this.elementosPagina = 0;
+          this.esPrimeraPagina = true;
+          this.esUltimaPagina = true;
+        }
         this.isLoadingReservas = false;
         this.cdr.detectChanges(); 
       },
@@ -98,6 +127,32 @@ export class ReservasComponent implements OnInit {
         this.cdr.detectChanges(); 
       }
     });
+  }
+
+  //navegacion de paginas
+  paginaAnterior(): void {
+    if (!this.esPrimeraPagina) {
+      this.paginaActual--;
+      this.cargarReservas();
+    }
+  }
+
+  paginaSiguiente(): void {
+    if (!this.esUltimaPagina) {
+      this.paginaActual++;
+      this.cargarReservas();
+    }
+  }
+
+  // CALCULO DINAMICO DEL RANGO INICIAL (Ej: 1, 6, 11...)
+  get desdeElemento(): number {
+    if (this.totalElementos === 0) return 0;
+    return (this.paginaActual * this.tamanioPagina) + 1;
+  }
+
+  // CALCULO DINAMICO DEL RANGO FINAL (Ej: 5, 10, 15...)
+  get hastaElemento(): number {
+    return (this.paginaActual * this.tamanioPagina) + this.elementosPagina;
   }
 //cancelar reserva
 isModalOpen = false;
@@ -115,7 +170,7 @@ cancelarReserva(): void {
   if (!this.itemACancelar) return;
 
   this.isModalOpen = false; 
-  this.cdr.detectChanges(); // <-- Forzamos el cierre visual de inmediato
+  this.cdr.detectChanges(); //forzamos el cierre visual del modal de inmediato
 
   this.isLoadingReservas = true;
   this.errorMessage = '';   
@@ -129,11 +184,13 @@ cancelarReserva(): void {
 
   this.reservaService.cancelarReserva(reservaDto).subscribe({
     next: (resp: any) => {
-      if (resp && (resp.status === 'OK' || resp.type === 'OK')) {
+      // sSi el status es OK todo salio bien
+      if (resp && resp.status === 'OK') {
         this.successMessage = '¡Reserva cancelada con éxito!';
-        this.cargarReservas();
+        this.cargarReservas(); //recargamos el listado para ver los cambios
       } else {
-        this.errorMessage = resp?.message || 'No se pudo cancelar la reserva.';
+        //Leemos desde 'resp.data' donde viaja en string de error
+        this.errorMessage = resp?.data || 'No se pudo cancelar la reserva.';
         this.isLoadingReservas = false;
         this.cdr.detectChanges();
       }
@@ -145,6 +202,7 @@ cancelarReserva(): void {
     },
     complete: () => {
       this.itemACancelar = null;
+      this.motivoCancelacion = ''; //limpiamos el cuadro de texto
     }
   });
 }

@@ -14,6 +14,27 @@ export class ReservaService {
 
   constructor(private http: HttpClient) {}
 
+  // manda el pago nuevo
+  registrarPagoAdmin(pago: any): Observable<any> {
+    return this.http
+      .post<any>(`/api/version1/pagos/admin`, pago)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
+  // trae el historial de una reserva
+  obtenerPagosReserva(idReserva: number): Observable<any> {
+    return this.http
+      .get<any>(`/api/version1/pagos/reserva/${idReserva}`)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
+  cancelarReservaComoAdmin(reserva: any): Observable<any> {
+    //metodo exclusivo para el panel de control global
+    return this.http
+      .put<any>(`/api/version1/reservas/cancelar-por-administrador`, reserva)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
   //cancelar reserva
   cancelarReserva(reserva: any): Observable<any> {
     //mandamos el objeto reserva completo (que incluye idReserva y motivoCanc)
@@ -23,16 +44,23 @@ export class ReservaService {
   }
 
   //obtiene la ocupacion (MEDIA / COMPLETA) de todos los espacios en un rango de fechas
-  obtenerReservasActivas(): Observable<any> {
-    //interceptor.ts añade automaticamente tu token Bearer
+  obtenerReservasActivas(pagina: number, tamanio: number): Observable<any> {
+    //usamos HttpParams para construir la Query String de forma limpia y segura
+    const params = new HttpParams()
+      .set('pagina', pagina.toString())
+      .set('tamanio', tamanio.toString());
+
     return this.http
-      .get<any>(`/api/version1/reservas/obtenerreservasactivas`)
-      .pipe(catchError((err) => this.handleError(err)));
+      .get<any>(`${this.apiUrl}/activas`, { params })
+      .pipe(
+        catchError((err) => this.handleError(err))
+      );
   }
 
-  listarReservas(idUsuario: number): Observable<any> {
+  //recibe los parametros de pgina para Mis Reservas
+  listarReservas(idUsuario: number, pagina: number, tamanio: number): Observable<any> {
     return this.http
-      .get<any>(`${this.apiUrl}/reservasporusuario/${idUsuario}`)
+      .get<any>(`${this.apiUrl}/reservasporusuario/${idUsuario}?pagina=${pagina}&tamanio=${tamanio}`)
       .pipe(catchError((err) => this.handleError(err)));
   }
 

@@ -39,7 +39,7 @@ export class LayoutComponent {
   // items del sidebar, los "soloLogueado" se muestran solo si el usuario está logueado
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
-    { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
+    { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-journal-check', soloLogueado: true },
     {
       texto: 'Registrar Espacio',
       ruta: '/registro-espacio',
@@ -47,7 +47,7 @@ export class LayoutComponent {
       soloAdmin: true,
     },
     {
-      texto: 'Control Reservas',
+      texto: 'Reservas activas',
       ruta: '/reservas-globales',
       icono: 'bi bi-clipboard-data',
       soloAdmin: true,
@@ -68,6 +68,10 @@ export class LayoutComponent {
 
   get esadmin(): boolean {
     return this.auth.isAdmin();
+  }
+
+  get nombreUsuario(): string {
+    return this.auth.getNombreUsuario();
   }
 
   alternarMenuPerfil(): void {

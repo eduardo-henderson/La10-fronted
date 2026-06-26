@@ -50,9 +50,8 @@ export class LoginComponent implements OnInit {
       .login(this.cedula, this.contrasenia)
       .pipe(
         finalize(() => {
-          // siempre se ejecuta (exito o error)
           this.isLoading = false;
-          this.cdr.detectChanges(); // obligamos al html a actualizar sus variables en pantalla
+          this.cdr.detectChanges(); 
         }),
       )
       .subscribe({
@@ -61,29 +60,34 @@ export class LoginComponent implements OnInit {
 
           if (token) {
             localStorage.setItem('auth_token', token);
-          }
-          if (res?.tipoUsuario) {
-            localStorage.setItem('user_role', res.tipoUsuario); // almacena el rol del usuario para admin panel o funcionalidades especificas a un rol
-          }
+            
+            try {
+              // 1. Decodificamos la parte central (Payload) del JWT
+              const payloadBase64 = token.split('.')[1];
+              // decodeURIComponent y escape previenen problemas si hay tildes o eñes en el nombre
+              const payloadDecodificado = JSON.parse(decodeURIComponent(escape(atob(payloadBase64))));
 
-          // extraigo el objeto de datos del usuario que responde tu backend al autenticarse
-          // si tu backend envia los datos planos en la raiz o en otra propiedad, adaptala aqui
-          const datosUsuario = res?.usuario || res;
+              // 2. Guardamos el objeto serializado extrayendo los datos reales desde los claims del Token
+              localStorage.setItem('usuario_actual', JSON.stringify({
+                idUsuario: payloadDecodificado.idUsuario || null,
+                nombre: payloadDecodificado.nombre || '',
+                apellido: payloadDecodificado.apellido || '',
+                email: payloadDecodificado.email || '', // Nota: si querés el email real, recordá agregarlo como .claim() en Java
+                telefono: payloadDecodificado.telefono || '',
+                fechaNacimiento: '',
+                contrasenia: '',
+                cedula: payloadDecodificado.sub || this.cedula, // En Jwts el subject (.setSubject) viaja en la propiedad 'sub'
+                tipousuario: res?.tipoUsuario || 'CLIENTE',
+                estadoUsuario: 'ACTIVO'
+              }));
+
+            } catch (error) {
+              console.error('Error decodificando el token JWT:', error);
+            }
+          }
           
-          if (datosUsuario) {
-            // guardo el objeto serializado en el localstorage con la clave que configuramos en el perfil
-            localStorage.setItem('usuario_actual', JSON.stringify({
-              idUsuario: datosUsuario.idUsuario || null,
-              nombre: datosUsuario.nombre || '',
-              apellido: datosUsuario.apellido || '',
-              email: datosUsuario.email || '',
-              telefono: datosUsuario.telefono || '',
-              fechaNacimiento: datosUsuario.fechaNacimiento || '',
-              contrasenia: datosUsuario.contrasenia || '',
-              cedula: datosUsuario.cedula || this.cedula, // uso la cedula ingresada como respaldo
-              tipousuario: datosUsuario.tipousuario || res?.tipoUsuario || 'CLIENTE',
-              estadoUsuario: datosUsuario.estadoUsuario || 'ACTIVO'
-            }));
+          if (res?.tipoUsuario) {
+            localStorage.setItem('user_role', res.tipoUsuario);
           }
 
           this.successMessage = 'Login exitoso. Redirigiendo...';
@@ -95,7 +99,6 @@ export class LoginComponent implements OnInit {
 
         error: (err) => {
           console.log('ERROR LLEGÓ AL COMPONENTE', err);
-
           let mensaje = 'Error al iniciar sesión';
 
           if (err.error?.message) {
@@ -103,14 +106,17 @@ export class LoginComponent implements OnInit {
           }
 
           if (err.status === 401) {
-            mensaje = mensaje || 'Usuario o contraseña incorrectos';
+            mensaje = err.error?.message || 'Usuario o contraseña incorrectos';
           } else if (err.status === 403) {
-            mensaje = 'Acceso denegado';
+            mensaje = err.error?.message || 'Su cuenta no tiene permisos para acceder. Comuníquese con el administrador.';
+          } else if (err.status === 0) {
+            mensaje = 'No se pudo conectar con el servidor. Verifica tu conexión.';
           }
 
-          this.errorMessage = mensaje; // al asignarlo aqui, finalize detectara el cambio y repintara el html
+          this.errorMessage = mensaje;
         },
       });
+
   }
 
   togglePasswordVisibility(): void {
