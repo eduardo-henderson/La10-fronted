@@ -1,0 +1,257 @@
+<div class="usuarios-pagina">
+  <header class="usuarios-cabecera">
+    <div class="cabecera-info">
+      <h1>Usuarios</h1>
+      <p class="cabecera-sub">Administrá los usuarios registrados en el sistema.</p>
+    </div>
+  </header>
+
+  <div *ngIf="aviso" class="aviso-exito">
+    <i class="bi bi-check-circle"></i>
+    {{ aviso }}
+  </div>
+
+  <section class="panel-card">
+    <div class="panel-toolbar">
+      <div class="buscador">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="filtro"
+          placeholder="Buscar por nombre, email, cédula o teléfono"
+        />
+      </div>
+      <button class="btn-crear" (click)="abrirCrear()">
+        <i class="bi bi-person-plus"></i>
+        Crear usuario
+      </button>
+    </div>
+
+    <div *ngIf="cargando" class="estado">
+      <span class="spinner"></span>
+      <p>Cargando usuarios...</p>
+    </div>
+
+    <div *ngIf="!cargando && mensajeError" class="estado estado-error">
+      <i class="bi bi-exclamation-triangle"></i>
+      <p>{{ mensajeError }}</p>
+      <button class="btn-retry" (click)="cargar()">Reintentar</button>
+    </div>
+
+    <div *ngIf="!cargando && !mensajeError && usuarios.length === 0" class="estado">
+      <i class="bi bi-inbox"></i>
+      <p>No hay usuarios registrados todavía.</p>
+    </div>
+
+    <div
+      *ngIf="!cargando && !mensajeError && usuarios.length > 0 && usuariosFiltrados.length === 0"
+      class="estado"
+    >
+      <i class="bi bi-search"></i>
+      <p>Ningún usuario coincide con "{{ filtro }}".</p>
+    </div>
+
+    <!-- Tabla -->
+    <ng-container *ngIf="!cargando && !mensajeError && usuariosFiltrados.length > 0">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Cédula</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th class="th-acciones">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of usuariosFiltrados; trackBy: trackById">
+              <td class="cell-id">{{ u.idUsuario }}</td>
+              <td>{{ u.nombre }}</td>
+              <td>{{ u.apellido }}</td>
+              <td class="cell-mono">{{ u.cedula }}</td>
+              <td class="cell-muted">{{ u.email }}</td>
+              <td class="cell-mono">{{ u.telefono }}</td>
+              <td>
+                <span class="badge" [ngClass]="claseBadge(u.tipousuario)">{{ u.tipousuario }}</span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="claseBadge(u.estadoUsuario)">{{
+                  u.estadoUsuario
+                }}</span>
+              </td>
+              <td class="cell-acciones">
+                <button class="btn-icono editar" (click)="abrirEditar(u)" title="Editar usuario">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-icono borrar" (click)="abrirBorrar(u)" title="Eliminar usuario">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-foot">
+        {{ usuariosFiltrados.length }} de {{ usuarios.length }} usuario(s)
+      </div>
+    </ng-container>
+  </section>
+</div>
+
+<!-- Modal crear/editar -->
+<div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ modoEdicion ? 'Editar usuario' : 'Crear usuario' }}</h3>
+      <button class="cerrar" (click)="cerrarModal()" [disabled]="guardando">&times;</button>
+    </div>
+
+    <form #formUsuario="ngForm" (ngSubmit)="guardar(formUsuario)">
+      <div class="form-grid">
+        <div class="campo">
+          <label>Nombre </label>
+          <input
+            type="text"
+            name="nombre"
+            [(ngModel)]="form.nombre"
+            [disabled]="guardando"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label>Apellido </label>
+          <input
+            type="text"
+            name="apellido"
+            [(ngModel)]="form.apellido"
+            [disabled]="guardando"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label>Cédula </label>
+          <input
+            type="text"
+            name="cedula"
+            [(ngModel)]="form.cedula"
+            [disabled]="guardando || modoEdicion"
+            required
+          />
+          <span class="campo-hint" *ngIf="modoEdicion">La cédula no se puede modificar.</span>
+        </div>
+
+        <div class="campo">
+          <label>Teléfono </label>
+          <input
+            type="text"
+            name="telefono"
+            [(ngModel)]="form.telefono"
+            [disabled]="guardando"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label>Email </label>
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="form.email"
+            [disabled]="guardando"
+            required
+            email
+          />
+        </div>
+
+        <div class="campo">
+          <label>Fecha de nacimiento </label>
+          <input
+            type="date"
+            name="fechaNacimiento"
+            [(ngModel)]="form.fechaNacimiento"
+            [disabled]="guardando"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label>Rol</label>
+          <select name="tipousuario" [(ngModel)]="form.tipousuario" [disabled]="guardando" required>
+            <option value="CLIENTE">Cliente</option>
+            <option value="ADMINISTRADOR">Administrador</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Estado </label>
+          <select
+            name="estadoUsuario"
+            [(ngModel)]="form.estadoUsuario"
+            [disabled]="guardando"
+            required
+          >
+            <option value="ACTIVO">Activo</option>
+            <option value="SUSPENDIDO">Suspendido</option>
+            <option value="BLOQUEADO">Bloqueado</option>
+          </select>
+        </div>
+
+        <div class="campo campo-full">
+          <label>
+            {{ modoEdicion ? 'Nueva contraseña (opcional)' : 'Contraseña ' }}
+          </label>
+          <input
+            type="password"
+            name="contrasenia"
+            [(ngModel)]="form.contrasenia"
+            [disabled]="guardando"
+            [required]="!modoEdicion"
+            [placeholder]="
+              modoEdicion ? 'Dejar vacio no cambia la contraseña' : 'Ingrese contraseña'
+            "
+          />
+        </div>
+      </div>
+
+      <p class="modal-err" *ngIf="errorModal">{{ errorModal }}</p>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn-sec" (click)="cerrarModal()" [disabled]="guardando">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-pri" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : modoEdicion ? 'Guardar cambios' : 'Crear usuario' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal borrar -->
+<div class="modal-overlay" *ngIf="modalBorrarAbierto" (click)="cerrarBorrar()">
+  <div class="modal modal-chico" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>Eliminar usuario</h3>
+      <button class="cerrar" (click)="cerrarBorrar()" [disabled]="borrando">&times;</button>
+    </div>
+    <p class="modal-msg">
+      Vas a eliminar a
+      <strong>{{ usuarioABorrar?.nombre }} {{ usuarioABorrar?.apellido }}</strong
+      >. Esta acción no se puede deshacer.
+    </p>
+    <p class="modal-nota">Si el usuario tiene reservas, en lugar de borrarse quedara bloqueado</p>
+    <div class="modal-acciones">
+      <button class="btn-sec" (click)="cerrarBorrar()" [disabled]="borrando">Cancelar</button>
+      <button class="btn-peligro" (click)="confirmarBorrar()" [disabled]="borrando">
+        {{ borrando ? 'Eliminando...' : 'Eliminar' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; // 🔥 agrega oninit
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -23,17 +23,17 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef, // 🔥 inyectado aqui
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/home']);
+      this.router.navigate(['/']);
     }
   }
 
   goHome(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/']);
   }
 
   login(): void {
@@ -56,9 +56,12 @@ export class LoginComponent implements OnInit {
       )
       .subscribe({
         next: (res) => {
+          console.log('Respuesta del Backend al iniciar sesión:', res);
+
           const token = res?.token || res?.jwt || res?.accessToken;
 
           if (token) {
+            // 1. Guardamos el token primero en el disco
             localStorage.setItem('auth_token', token);
             
             try {
@@ -93,18 +96,16 @@ export class LoginComponent implements OnInit {
           this.successMessage = 'Login exitoso. Redirigiendo...';
 
           setTimeout(() => {
-            this.router.navigate(['/home']);
+            this.router.navigate(['/']);
           }, 500);
         },
 
         error: (err) => {
           console.log('ERROR LLEGÓ AL COMPONENTE', err);
           let mensaje = 'Error al iniciar sesión';
-
           if (err.error?.message) {
             mensaje = err.error.message;
           }
-
           if (err.status === 401) {
             mensaje = err.error?.message || 'Usuario o contraseña incorrectos';
           } else if (err.status === 403) {
@@ -112,7 +113,6 @@ export class LoginComponent implements OnInit {
           } else if (err.status === 0) {
             mensaje = 'No se pudo conectar con el servidor. Verifica tu conexión.';
           }
-
           this.errorMessage = mensaje;
         },
       });

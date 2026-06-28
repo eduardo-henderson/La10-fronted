@@ -1,7 +1,11 @@
 <div class="detalle-pagina">
   <a routerLink="/espacios" class="volver">← Volver a espacios</a>
 
-  <!-- Header dias -->>
+  <div class="detalle-imagen" *ngIf="espacio && espacio.imagenUrl">
+    <img [src]="espacio.imagenUrl" [alt]="espacio.nombre || 'Espacio'" />
+  </div>
+
+  <!-- Header dias -->
   <div class="cabecera">
     <div class="titulo-fila">
       <div>

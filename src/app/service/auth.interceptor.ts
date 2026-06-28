@@ -9,10 +9,13 @@ import { catchError } from 'rxjs/operators';
  */
 export const authInterceptor = (
   request: HttpRequest<any>,
-  next: (request: HttpRequest<any>) => Observable<HttpEvent<any>>
+  next: (request: HttpRequest<any>) => Observable<HttpEvent<any>>,
 ): Observable<HttpEvent<any>> => {
   const token = localStorage.getItem('auth_token');
-  console.log('[authInterceptor] token from localStorage =', token ? `${String(token).slice(0, 20)}...` : 'NULL/EMPTY');
+  console.log(
+    '[authInterceptor] token from localStorage =',
+    token ? `${String(token).slice(0, 20)}...` : 'NULL/EMPTY',
+  );
   console.log('[authInterceptor] url =', request.url);
 
   const isValidToken = (t: string | null): t is string => {
@@ -21,21 +24,37 @@ export const authInterceptor = (
 
   // Evitar adjuntar token en endpoints de seguridad/registro o si ya exista Authorization
   const isAuthEndpoint =
-  request.url.includes('/seguridad/login') ||
-  request.url.includes('/usuarios/registro');
+    request.url.includes('/seguridad/login') ||
+    request.url.includes('/usuarios/registro') ||
+    request.url.includes('api.cloudinary.com');
   const hasAuthHeader = request.headers.has('Authorization');
 
-  console.log('[authInterceptor] isAuthEndpoint=', isAuthEndpoint, ', hasAuthHeader=', hasAuthHeader, ', isValidToken=', isValidToken(token));
+  console.log(
+    '[authInterceptor] isAuthEndpoint=',
+    isAuthEndpoint,
+    ', hasAuthHeader=',
+    hasAuthHeader,
+    ', isValidToken=',
+    isValidToken(token),
+  );
 
   if (isValidToken(token) && !isAuthEndpoint && !hasAuthHeader) {
     request = request.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
     console.log('[authInterceptor] ✓ Authorization header ATTACHED');
   } else {
-    console.log('[authInterceptor] ✗ Authorization header NOT attached (reason: validToken=' + isValidToken(token) + ' || isAuthEndpoint=' + isAuthEndpoint + ' || hasAuthHeader=' + hasAuthHeader + ')');
+    console.log(
+      '[authInterceptor] ✗ Authorization header NOT attached (reason: validToken=' +
+        isValidToken(token) +
+        ' || isAuthEndpoint=' +
+        isAuthEndpoint +
+        ' || hasAuthHeader=' +
+        hasAuthHeader +
+        ')',
+    );
   }
   const url = request.url;
   // Procesar la petición
@@ -52,7 +71,6 @@ export const authInterceptor = (
 
       // Dejar que el componente maneje el 403 para mostrar la alerta en el mismo formato de la app.
       return throwError(() => error);
-    })
+    }),
   );
 };
-

@@ -13,4 +13,5 @@ export interface Espacio {
   tipo: TipoEspacio;
   canchaAsociada?: Espacio | null;
   idCanchaAsociada?: number | null;
+  imagenUrl?: string | null;
 }

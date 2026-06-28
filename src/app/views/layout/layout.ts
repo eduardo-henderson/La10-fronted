@@ -19,31 +19,34 @@ interface ItemMenu {
   templateUrl: './layout.html',
   styleUrls: ['./layout.css'],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
   private router = inject(Router);
   protected auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   menuPerfilAbierto = false;
 
   constructor() {
-    // suscribirse a cambios de autenticación para forzar re-render cuando cambie token/rol
     this.auth.isAuthenticated$.subscribe(() => {
       try {
         this.cdr.detectChanges();
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) {}
     });
   }
 
-  // items del sidebar, los "soloLogueado" se muestran solo si el usuario está logueado
+  ngOnInit(): void {
+    // se fuerza una estabilizacion de la vista al inicializar el componente
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
     { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-journal-check', soloLogueado: true },
     {
-      texto: 'Registrar Espacio',
+      texto: 'Administrar Espacios',
       ruta: '/registro-espacio',
-      icono: 'bi bi-bookmark-star',
+      icono: 'bi bi-clipboard-plus',
       soloAdmin: true,
     },
     {
@@ -52,14 +55,24 @@ export class LayoutComponent {
       icono: 'bi bi-clipboard-data',
       soloAdmin: true,
     },
+    {
+      texto: 'Usuarios',
+      ruta: '/usuarios',
+      icono: 'bi bi-people',
+      soloAdmin: true,
+    },
   ];
 
-  get itemsVisibles(): ItemMenu[] {
+  get itemsGenerales(): ItemMenu[] {
     const logueado = this.auth.isAuthenticated();
-    const admin = this.auth.isAdmin();
-    return this.itemsMenu.filter(
-      (item) => (!item.soloLogueado || logueado) && (!item.soloAdmin || admin),
-    );
+    return this.itemsMenu.filter((item) => !item.soloAdmin && (!item.soloLogueado || logueado));
+  }
+
+  get itemsAdmin(): ItemMenu[] {
+    if (!this.auth.isAdmin()) {
+      return [];
+    }
+    return this.itemsMenu.filter((item) => item.soloAdmin);
   }
 
   get estaLogueado(): boolean {
@@ -78,7 +91,6 @@ export class LayoutComponent {
     this.menuPerfilAbierto = !this.menuPerfilAbierto;
   }
 
-  // cerrar con click afuera del dropdown
   @HostListener('document:click', ['$event'])
   cerrarSiClickAfuera(evento: MouseEvent): void {
     const objetivo = evento.target as HTMLElement;
