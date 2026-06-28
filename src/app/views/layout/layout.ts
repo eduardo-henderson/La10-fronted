@@ -61,6 +61,11 @@ export class LayoutComponent implements OnInit {
       icono: 'bi bi-people',
       soloAdmin: true,
     },
+    { 
+      texto: 'Contacto e Información', 
+      ruta: '/contacto-informacion', 
+      icono: 'bi bi-info-circle' 
+    }
   ];
 
   get itemsGenerales(): ItemMenu[] {

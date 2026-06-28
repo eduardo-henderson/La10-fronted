@@ -102,7 +102,8 @@ export class ReservaService {
           errorMessage = 'No autenticado. Por favor inicia sesión.';
           break;
         case 403:
-          errorMessage = 'No tienes permisos para realizar esta acción.';
+          // leemos el mensaje de Spring Boot primero.
+          errorMessage = error.error?.message || 'Reserva rechazada. Tu cuenta se encuentra en estado de suspención, por favor comunicate con el administrador del complejo gracias';
           break;
         case 404:
           errorMessage = 'El recurso solicitado no existe.';
@@ -111,7 +112,8 @@ export class ReservaService {
           errorMessage = `Error del servidor: ${error.error?.message || 'Intenta más tarde.'}`;
           break;
         default:
-          errorMessage = `Error ${error.status}: ${error.statusText}`;
+          //a veces Spring Boot manda el texto plano directamente en error.error,
+          errorMessage = error.error?.message || error.error || `Error ${error.status}: ${error.statusText}`;
       }
     }
 
