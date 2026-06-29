@@ -28,8 +28,14 @@
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==========================================================================
@@ -38,7 +44,7 @@
 .header-reservas,
 .header-global {
   margin-bottom: 20px;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .header-reservas h1,
@@ -132,9 +138,9 @@
    ========================================================================== */
 .content-reservas,
 .content-global {
-  flex-grow: 1; 
-  overflow-y: auto; 
-  padding-right: 8px; 
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 8px;
   margin-bottom: 15px;
 }
 
@@ -246,24 +252,24 @@
   text-transform: uppercase;
 }
 
-.estado-tag[data-estado="CONFIRMADA"],
-.estado-tag[data-estado="Aprobada"] {
+.estado-tag[data-estado='CONFIRMADA'],
+.estado-tag[data-estado='Aprobada'] {
   background-color: var(--color-exito-fondo);
   color: var(--color-exito-texto);
 }
 
-.estado-tag[data-estado="PENDIENTE"] {
+.estado-tag[data-estado='PENDIENTE'] {
   background-color: var(--color-advertencia-fondo);
   color: var(--color-advertencia-texto);
 }
 
 /* Ocupaciones reales del Admin list */
-.estado-tag[data-estado="COMPLETA"] {
+.estado-tag[data-estado='COMPLETA'] {
   background-color: var(--color-error-fondo);
   color: var(--color-error-texto);
 }
 
-.estado-tag[data-estado="MEDIA"] {
+.estado-tag[data-estado='MEDIA'] {
   background-color: var(--color-advertencia-fondo);
   color: var(--color-advertencia-texto);
 }
@@ -366,9 +372,13 @@
 }
 
 /*color si el estado pasa a CANCELADO */
-.estado-tag[data-estado="CANCELADO"] {
+.estado-tag[data-estado='CANCELADO'] {
   background-color: var(--color-error-fondo);
   color: var(--color-error-texto);
 }
 
-
+.reserva-comentario {
+  background: var(--color-superficie-diferente);
+  border-radius: var(--radio-sm);
+  font-style: italic;
+}

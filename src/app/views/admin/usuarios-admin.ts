@@ -7,6 +7,7 @@ import {
   NuevoUsuarioPayload,
   EditarUsuarioPayload,
 } from '../../service/usuario-admin.service';
+import { AuthService } from '../../service/auth.service';
 
 interface FormUsuario {
   idUsuario: number | null;
@@ -31,11 +32,20 @@ interface FormUsuario {
 export class UsuariosAdminComponent implements OnInit {
   private servicio = inject(UsuarioAdminService);
   private cdr = inject(ChangeDetectorRef);
+  private auth = inject(AuthService);
+  private filtroTimeout: any;
 
   usuarios: UsuarioAdmin[] = [];
   cargando = false;
   mensajeError = '';
   filtro = '';
+
+  pagina = 0;
+  tamanio = 10;
+  totalPaginas = 0;
+  totalUsuarios = 0;
+  esUltima = false;
+  esPrimera = true;
 
   modalAbierto = false;
   modoEdicion = false;
@@ -58,9 +68,14 @@ export class UsuariosAdminComponent implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.mensajeError = '';
-    this.servicio.listarTodos().subscribe({
-      next: (datos) => {
-        this.usuarios = Array.isArray(datos) ? datos : [];
+    this.servicio.listarPaginado(this.pagina, this.tamanio, this.filtro).subscribe({
+      next: (pagina) => {
+        this.usuarios = pagina.content ?? [];
+        this.totalPaginas = pagina.totalPages ?? 0;
+        this.totalUsuarios = pagina.totalElements ?? 0;
+        this.esUltima = pagina.last ?? true;
+        this.esPrimera = pagina.first ?? true;
+        this.pagina = pagina.number ?? 0;
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -83,6 +98,10 @@ export class UsuariosAdminComponent implements OnInit {
         .filter(Boolean)
         .some((campo) => campo.toLowerCase().includes(q)),
     );
+  }
+
+  get numerosPagina(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i);
   }
 
   // Modal crear/editar
@@ -120,6 +139,7 @@ export class UsuariosAdminComponent implements OnInit {
 
   guardar(formRef: NgForm): void {
     if (formRef.invalid || this.guardando) {
+      formRef.form.markAllAsTouched();
       this.errorModal = 'Completa todos los campos obligatorios.';
       return;
     }
@@ -132,6 +152,39 @@ export class UsuariosAdminComponent implements OnInit {
     } else {
       this.enviarCreacion();
     }
+  }
+
+  soyYo(u: UsuarioAdmin): boolean {
+    return u.idUsuario === this.miId;
+  }
+
+  puedeEliminar(u: UsuarioAdmin): boolean {
+    const esAdmin = (u.tipousuario || '').toUpperCase() === 'ADMINISTRADOR';
+    return !esAdmin;
+  }
+
+  puedeEditar(u: UsuarioAdmin): boolean {
+    const esAdmin = (u.tipousuario || '').toUpperCase() === 'ADMINISTRADOR';
+    if (esAdmin && !this.soyYo(u)) return false;
+    return true;
+  }
+
+  paginaSiguiente(): void {
+    if (this.esUltima) return;
+    this.pagina++;
+    this.cargar();
+  }
+
+  paginaAnterior(): void {
+    if (this.esPrimera) return;
+    this.pagina--;
+    this.cargar();
+  }
+
+  irAPagina(n: number): void {
+    if (n < 0 || n >= this.totalPaginas || n === this.pagina) return;
+    this.pagina = n;
+    this.cargar();
   }
 
   private enviarCreacion(): void {
@@ -160,6 +213,10 @@ export class UsuariosAdminComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  private get miId(): number {
+    return this.auth.getUsuarioId();
   }
 
   private enviarEdicion(): void {
@@ -231,6 +288,14 @@ export class UsuariosAdminComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  onBuscar(): void {
+    clearTimeout(this.filtroTimeout);
+    this.filtroTimeout = setTimeout(() => {
+      this.pagina = 0;
+      this.cargar();
+    }, 350);
   }
 
   private formVacio(): FormUsuario {

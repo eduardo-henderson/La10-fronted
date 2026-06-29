@@ -271,14 +271,6 @@
   border-color: var(--color-error);
 }
 
-.table-foot {
-  padding: 0.75rem 1.1rem;
-  font-size: 0.8rem;
-  color: var(--color-texto-secundario);
-  background: var(--color-superficie-diferente);
-  border-top: 1px solid var(--color-borde);
-}
-
 .badge {
   display: inline-block;
   padding: 0.25rem 0.7rem;
@@ -523,6 +515,76 @@
 .btn-sec:disabled,
 .btn-peligro:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.campo input.ng-invalid.ng-touched,
+.campo select.ng-invalid.ng-touched,
+.campo input.ng-invalid.ng-dirty,
+.campo select.ng-invalid.ng-dirty {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error-fondo);
+}
+
+.campo input.ng-invalid.ng-touched:focus,
+.campo select.ng-invalid.ng-touched:focus,
+.campo input.ng-invalid.ng-dirty:focus,
+.campo select.ng-invalid.ng-dirty:focus {
+  outline: none;
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error-fondo);
+}
+
+.paginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--color-borde);
+  background: var(--color-superficie-diferente);
+}
+
+.paginacion-info {
+  font-size: 0.82rem;
+  color: var(--color-texto-secundario);
+}
+
+.paginacion-controles {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-pagina {
+  min-width: 38px;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  border-radius: var(--radio-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-pagina:hover:not(:disabled):not(.activa) {
+  background: var(--color-superficie-diferente);
+  border-color: var(--color-principal-claro);
+}
+
+.btn-pagina.activa {
+  background: var(--color-principal);
+  color: var(--color-texto-blanco);
+  border-color: var(--color-principal);
+  cursor: default;
+}
+
+.btn-pagina:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
 }
 

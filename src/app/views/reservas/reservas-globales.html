@@ -1,6 +1,5 @@
 <div class="global-page-container">
   <div class="global-box">
-    
     <div class="header-global">
       <button (click)="goHome()" class="btn-back-top" title="Volver a inicio">
         ← Volver a Inicio
@@ -19,37 +18,42 @@
 
     <div class="content-global">
       <section class="list-section">
-        
-        <div *ngIf="isLoading" class="loading-spinner">
-          Cargando listado general de reservas...
-        </div>
-        
+        <div *ngIf="isLoading" class="loading-spinner">Cargando listado general de reservas...</div>
+
         <div *ngIf="!isLoading && reservasGlobales.length === 0" class="empty-state">
           <p>No existen reservas activas en el sistema en este momento.</p>
         </div>
 
         <div *ngIf="!isLoading && reservasGlobales.length > 0" class="global-grid">
           <div *ngFor="let item of reservasGlobales" class="reserva-card-global">
-            
             <div class="reserva-header">
               <h3>{{ getEspacioNombre(item.idEspacio) }}</h3>
               <span class="reserva-time">
-                {{ item.horaInicio | date:'dd/MM/yyyy' }} | 
-                {{ item.horaInicio | date:'HH:mm' }} a {{ item.horaFin | date:'HH:mm' }}
+                {{ item.horaInicio | date: 'dd/MM/yyyy' }} | {{ item.horaInicio | date: 'HH:mm' }} a
+                {{ item.horaFin | date: 'HH:mm' }}
               </span>
             </div>
 
             <div class="reserva-info">
               <p *ngIf="item.nombreUsuario"><strong>Cliente:</strong> {{ item.nombreUsuario }}</p>
-              <p *ngIf="item.cedulaUsuario"><strong>Cédula:</strong> {{ item.cedulaUsuario }} </p>
-              <p *ngIf="!item.nombreUsuario && !item.cedulaUsuario"><strong>Cliente:</strong> <em>Datos no disponibles</em></p>
-              
+              <p *ngIf="item.cedulaUsuario"><strong>Cédula:</strong> {{ item.cedulaUsuario }}</p>
+              <p *ngIf="!item.nombreUsuario && !item.cedulaUsuario">
+                <strong>Cliente:</strong> <em>Datos no disponibles</em>
+              </p>
+
               <p><strong>Usuario Cliente (ID):</strong> {{ item.idUsuario }}</p>
               <p><strong>Tipo Turno:</strong> {{ item.tipoDeReserva }}</p>
-              <p><strong>Total Cobrado:</strong> <span class="reserva-price">${{ item.precioTotal }}</span></p>
-              
               <p>
-                <strong>Estado:</strong> 
+                <strong>Total Cobrado:</strong>
+                <span class="reserva-price">${{ item.precioTotal }}</span>
+              </p>
+
+              <p *ngIf="item.comentario" class="reserva-comentario">
+                <strong>Comentario:</strong> {{ item.comentario }}
+              </p>
+
+              <p>
+                <strong>Estado:</strong>
                 <span class="estado-tag" [attr.data-estado]="item.estadoDeReserva">
                   {{ item.estadoDeReserva }}
                 </span>
@@ -65,16 +69,13 @@
                 </button>
               </div>
             </div>
-
           </div>
         </div>
-
       </section>
     </div>
 
     <div class="global-footer">
       <p class="info-text">Administración Avanzada - La 10</p>
     </div>
-
   </div>
 </div>

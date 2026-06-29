@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, inject, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,16 +10,23 @@ import { AuthService } from '../../service/auth.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './editarusuario.html',
   styleUrls: ['./editarusuario.css'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class EditarUsuarioComponent implements OnInit {
   private router = inject(Router);
   protected authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
-  errorMessage = '';
-  successMessage = '';
   isLoading = true;
-  isSaving = false;
+
+  datosError = '';
+  datosSuccess = '';
+  claveError = '';
+  claveSuccess = '';
+  isSavingDatos = false;
+  isSavingClave = false;
+
+  verClaves = false;
 
   usuario = {
     idUsuario: null as any,
@@ -28,96 +35,168 @@ export class EditarUsuarioComponent implements OnInit {
     email: '',
     telefono: '',
     fechaNacimiento: '',
-    contrasenia: '',
     cedula: '',
     tipousuario: '',
     estadoUsuario: '',
-    claveActual: '',
-    nuevaClave: ''
   };
 
-  ngOnInit(): void {
-    const usuarioLogueado = localStorage.getItem('usuario_actual');
-    if (usuarioLogueado) {
-      const datosRaw = JSON.parse(usuarioLogueado);
+  claveActual = '';
+  nuevaClave = '';
+  confirmarClave = '';
 
+  private cargarDesdeLocalStorage(): void {
+    const raw = localStorage.getItem('usuario_actual');
+    if (raw) {
+      const d = JSON.parse(raw);
       this.usuario = {
-        ...datosRaw,
-        idUsuario: datosRaw.idusuario || datosRaw.idUsuario || null,
-        claveActual: '',
-        nuevaClave: ''
+        ...this.usuario,
+        ...d,
+        idUsuario: d.idusuario || d.idUsuario || null,
       };
     }
-    this.isLoading = false;
+  }
+
+  ngOnInit(): void {
+    const id = this.authService.getUsuarioId();
+
+    if (!id) {
+      this.cargarDesdeLocalStorage();
+      this.isLoading = false;
+      return;
+    }
+
+    this.authService.obtenerUsuario(id).subscribe({
+      next: (resp: any) => {
+        if (resp?.status === 'ERROR' || !resp?.data) {
+          this.cargarDesdeLocalStorage();
+        } else {
+          const u = resp.data;
+          this.usuario = {
+            idUsuario: u.idUsuario ?? id,
+            nombre: u.nombre ?? '',
+            apellido: u.apellido ?? '',
+            email: u.email ?? '',
+            telefono: u.telefono ?? '',
+            fechaNacimiento: u.fechaNacimiento ?? '',
+            cedula: u.cedula ?? '',
+            tipousuario: u.tipousuario ?? '',
+            estadoUsuario: u.estadoUsuario ?? '',
+          };
+        }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargarDesdeLocalStorage();
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private persistirUsuarioLocal(): void {
+    localStorage.setItem(
+      'usuario_actual',
+      JSON.stringify({ ...this.usuario, idusuario: this.usuario.idUsuario }),
+    );
   }
 
   goHome(): void {
     this.router.navigate(['/espacios']);
   }
 
-  guardarCambios(form: any): void {
-    if (form.invalid || this.isSaving) {
+  get clavesCoinciden(): boolean {
+    return this.nuevaClave === this.confirmarClave;
+  }
+
+  guardarDatos(form: any): void {
+    this.datosError = '';
+    this.datosSuccess = '';
+
+    if (form.invalid) {
+      form.control.markAllAsTouched();
+      this.datosError = 'Completá los campos obligatorios.';
       return;
     }
+    if (this.isSavingDatos) return;
+    this.isSavingDatos = true;
 
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.isSaving = true;
-
-    // Estructura completa mapeada para interceptores de persistencia en Java
-    const usuarioEnvio = {
-      idusuario: this.usuario.idUsuario,
+    const payload = {
       idUsuario: this.usuario.idUsuario,
       nombre: this.usuario.nombre,
       apellido: this.usuario.apellido,
       email: this.usuario.email,
       telefono: this.usuario.telefono,
-      fechaNacimiento: this.usuario.fechaNacimiento,
-      cedula: this.usuario.cedula,
-      tipousuario: this.usuario.tipousuario,
-      estadoUsuario: this.usuario.estadoUsuario,
-
-      // Enviamos las contraseñas duplicadas con los nombres mas comunes en controladores de Spring
-      contrasenia: this.usuario.nuevaClave ? this.usuario.nuevaClave : this.usuario.contrasenia,
-      password: this.usuario.nuevaClave ? this.usuario.nuevaClave : this.usuario.contrasenia,
-
-      // Mapeo estricto para el cambio de credenciales
-      claveActual: this.usuario.claveActual || null,
-      contraseniaActual: this.usuario.claveActual || null,
-      currentPassword: this.usuario.claveActual || null,
-
-      nuevaClave: this.usuario.nuevaClave || null,
-      nuevaContrasenia: this.usuario.nuevaClave || null,
-      newPassword: this.usuario.nuevaClave || null
     };
 
-    this.authService.editarUsuario(usuarioEnvio).subscribe({
-      next: (response: any) => {
-        this.successMessage = '¡Los cambios se guardaron con éxito!';
-
-        if (response?.token || response?.jwt) {
-          localStorage.setItem('auth_token', response.token || response.jwt);
+    this.authService.editarUsuario(payload).subscribe({
+      next: (resp: any) => {
+        this.isSavingDatos = false;
+        if (resp?.status === 'ERROR') {
+          this.datosError = resp?.data || 'No se pudieron guardar los cambios.';
+        } else {
+          this.datosSuccess = 'Datos actualizados correctamente.';
+          this.persistirUsuarioLocal();
         }
-
-        localStorage.setItem('usuario_actual', JSON.stringify({
-          ...this.usuario,
-          idusuario: this.usuario.idUsuario,
-          contrasenia: this.usuario.nuevaClave ? this.usuario.nuevaClave : this.usuario.contrasenia,
-          claveActual: '',
-          nuevaClave: ''
-        }));
-
-        setTimeout(() => {
-          this.router.navigate(['/home']);
-        }, 2000);
+        this.cdr.detectChanges();
       },
-      error: (error: unknown) => {
-        console.error(error);
-        this.errorMessage = 'Hubo un error al intentar actualizar los datos en el servidor';
+      error: () => {
+        this.isSavingDatos = false;
+        this.datosError = 'Hubo un error al actualizar los datos en el servidor.';
+        this.cdr.detectChanges();
       },
-      complete: () => {
-        this.isSaving = false;
-      }
+    });
+  }
+
+  cambiarClave(form: any): void {
+    this.claveError = '';
+    this.claveSuccess = '';
+
+    if (form.invalid) {
+      form.control.markAllAsTouched();
+      this.claveError = 'Completá los campos de contraseña.';
+      return;
+    }
+    if (this.nuevaClave.length < 6) {
+      this.claveError = 'La nueva contraseña debe tener al menos 6 caracteres.';
+      return;
+    }
+    if (!this.clavesCoinciden) {
+      this.claveError = 'Las contraseñas no coinciden.';
+      return;
+    }
+    if (this.isSavingClave) return;
+    this.isSavingClave = true;
+
+    const payload = {
+      idUsuario: this.usuario.idUsuario,
+      nombre: this.usuario.nombre,
+      apellido: this.usuario.apellido,
+      email: this.usuario.email,
+      telefono: this.usuario.telefono || null,
+      claveActual: this.claveActual,
+      nuevaClave: this.nuevaClave,
+    };
+
+    this.authService.editarUsuario(payload).subscribe({
+      next: (resp: any) => {
+        this.isSavingClave = false;
+        if (resp?.status === 'ERROR') {
+          this.claveError = resp?.data || 'No se pudo cambiar la contraseña.';
+        } else {
+          this.claveSuccess = 'Contraseña actualizada correctamente.';
+          this.claveActual = '';
+          this.nuevaClave = '';
+          this.confirmarClave = '';
+          form.resetForm();
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isSavingClave = false;
+        this.claveError = 'Hubo un error al cambiar la contraseña.';
+        this.cdr.detectChanges();
+      },
     });
   }
 }

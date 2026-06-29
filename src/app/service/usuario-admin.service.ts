@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface UsuarioAdmin {
@@ -38,6 +38,17 @@ export interface EditarUsuarioPayload {
   nuevaClave?: string;
 }
 
+export interface PaginaUsuarios {
+  content: UsuarioAdmin[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UsuarioAdminService {
   private http = inject(HttpClient);
@@ -58,5 +69,13 @@ export class UsuarioAdminService {
 
   eliminar(idUsuario: number): Observable<any> {
     return this.http.delete<any>(`${this.base}/eliminar/${idUsuario}`);
+  }
+
+  listarPaginado(pagina: number, tamanio: number, q: string): Observable<PaginaUsuarios> {
+    let params = new HttpParams().set('pagina', pagina).set('tamanio', tamanio);
+    if (q && q.trim()) {
+      params = params.set('q', q.trim());
+    }
+    return this.http.get<PaginaUsuarios>(`${this.base}/listarPaginado`, { params });
   }
 }

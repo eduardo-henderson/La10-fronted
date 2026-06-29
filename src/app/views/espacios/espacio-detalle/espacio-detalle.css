@@ -413,6 +413,10 @@
   background: var(--color-error-fondo);
   border-color: var(--color-error);
 }
+.punto.propia {
+  background: var(--color-exito-fondo);
+  border-color: var(--color-exito);
+}
 
 .alerta {
   padding: 0.7rem 1rem;
@@ -541,6 +545,16 @@
 .celda-sel {
   outline: 2px solid var(--color-principal);
   outline-offset: -2px;
+}
+
+.celda-hover {
+  background: var(--color-principal-suave);
+}
+
+.celda-propia {
+  background: var(--color-exito-fondo);
+  color: var(--color-exito-texto);
+  cursor: not-allowed;
 }
 
 .modal-overlay {
@@ -690,6 +704,41 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.campo-comentario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.campo-comentario label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-texto-secundario);
+}
+.campo-comentario textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--color-texto);
+  background: var(--color-superficie);
+  resize: vertical;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.campo-comentario textarea:focus {
+  outline: none;
+  border-color: var(--color-principal);
+  box-shadow: 0 0 0 3px var(--color-principal-suave);
+}
+.campo-comentario textarea:disabled {
+  background: var(--color-superficie-diferente);
+  cursor: not-allowed;
 }
 
 @keyframes girar {

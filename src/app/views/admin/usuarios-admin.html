@@ -18,6 +18,7 @@
         <input
           type="text"
           [(ngModel)]="filtro"
+          (ngModelChange)="onBuscar()"
           placeholder="Buscar por nombre, email, cédula o teléfono"
         />
       </div>
@@ -43,21 +44,17 @@
       <p>No hay usuarios registrados todavía.</p>
     </div>
 
-    <div
-      *ngIf="!cargando && !mensajeError && usuarios.length > 0 && usuariosFiltrados.length === 0"
-      class="estado"
-    >
+    <div *ngIf="!cargando && !mensajeError && usuarios.length === 0 && filtro" class="estado">
       <i class="bi bi-search"></i>
       <p>Ningún usuario coincide con "{{ filtro }}".</p>
     </div>
 
     <!-- Tabla -->
-    <ng-container *ngIf="!cargando && !mensajeError && usuariosFiltrados.length > 0">
+    <ng-container *ngIf="!cargando && !mensajeError && usuarios.length > 0">
       <div class="table-scroll">
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nombre</th>
               <th>Apellido</th>
               <th>Cédula</th>
@@ -69,8 +66,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let u of usuariosFiltrados; trackBy: trackById">
-              <td class="cell-id">{{ u.idUsuario }}</td>
+            <tr *ngFor="let u of usuarios; trackBy: trackById">
               <td>{{ u.nombre }}</td>
               <td>{{ u.apellido }}</td>
               <td class="cell-mono">{{ u.cedula }}</td>
@@ -85,10 +81,20 @@
                 }}</span>
               </td>
               <td class="cell-acciones">
-                <button class="btn-icono editar" (click)="abrirEditar(u)" title="Editar usuario">
+                <button
+                  *ngIf="puedeEditar(u)"
+                  class="btn-icono editar"
+                  (click)="abrirEditar(u)"
+                  title="Editar usuario"
+                >
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn-icono borrar" (click)="abrirBorrar(u)" title="Eliminar usuario">
+                <button
+                  *ngIf="puedeEliminar(u)"
+                  class="btn-icono borrar"
+                  (click)="abrirBorrar(u)"
+                  title="Eliminar usuario"
+                >
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
@@ -96,8 +102,31 @@
           </tbody>
         </table>
       </div>
-      <div class="table-foot">
-        {{ usuariosFiltrados.length }} de {{ usuarios.length }} usuario(s)
+
+      <!-- Controles de paginación -->
+      <div class="paginacion">
+        <div class="paginacion-info">
+          Mostrando {{ usuarios.length }} de {{ totalUsuarios }} usuario(s) — Página
+          {{ pagina + 1 }} de {{ totalPaginas }}
+        </div>
+        <div class="paginacion-controles">
+          <button class="btn-pagina" (click)="paginaAnterior()" [disabled]="esPrimera">
+            ‹ Anterior
+          </button>
+
+          <button
+            *ngFor="let n of numerosPagina"
+            class="btn-pagina num"
+            [class.activa]="n === pagina"
+            (click)="irAPagina(n)"
+          >
+            {{ n + 1 }}
+          </button>
+
+          <button class="btn-pagina" (click)="paginaSiguiente()" [disabled]="esUltima">
+            Siguiente ›
+          </button>
+        </div>
       </div>
     </ng-container>
   </section>

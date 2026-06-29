@@ -11,7 +11,7 @@ export class AuthService {
   private tokenKey = 'auth_token';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  
+
   constructor(private http: HttpClient) {}
 
   /**
@@ -23,11 +23,20 @@ export class AuthService {
     try {
       const payloadBase64 = token.split('.')[1];
       const payloadDecodificado = JSON.parse(atob(payloadBase64));
-      return payloadDecodificado.idUsuario || payloadDecodificado.idusuario || payloadDecodificado.id || 0;
+      return (
+        payloadDecodificado.idUsuario ||
+        payloadDecodificado.idusuario ||
+        payloadDecodificado.id ||
+        0
+      );
     } catch (e) {
       console.error('Error al decodificar token', e);
       return 0;
     }
+  }
+
+  obtenerUsuario(id: number): Observable<any> {
+    return this.http.post<any>(`/api/version1/usuarios/getusuario`, id);
   }
 
   /**
@@ -45,7 +54,7 @@ export class AuthService {
             localStorage.setItem('user_role', response.tipoUsuario);
           }
         }
-      })
+      }),
     );
   }
 
@@ -63,7 +72,7 @@ export class AuthService {
     const token = this.getToken();
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     });
     return this.http.put<any>(`/api/version1/usuarios/editar`, usuario, { headers });
   }
@@ -92,7 +101,7 @@ export class AuthService {
   }
 
   getRole(): string | null {
-    return localStorage.getItem('user_role'); 
+    return localStorage.getItem('user_role');
   }
 
   isAdmin(): boolean {

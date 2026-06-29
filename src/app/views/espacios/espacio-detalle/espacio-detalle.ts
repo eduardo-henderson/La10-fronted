@@ -42,6 +42,7 @@ export class EspacioDetalleComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   HORA_INICIO = 10;
+  DURACION_SALON = 5;
   MAXIMO_SEMANAS_ADELANTE = 2; // Hasta donde va el calendario
   DIAS_LIMITE_RESERVA = this.MAXIMO_SEMANAS_ADELANTE * 7;
 
@@ -62,6 +63,8 @@ export class EspacioDetalleComponent implements OnInit {
 
   grillaCancha: TipoOcupacion[][] = [];
 
+  grillaPropia: boolean[][] = [];
+
   seleccion: Seleccion | null = null;
   incluyeCancha = false;
 
@@ -70,6 +73,10 @@ export class EspacioDetalleComponent implements OnInit {
   guardando = false;
   error = '';
   exito = '';
+
+  comentario = '';
+
+  hoverInicio: { diaIndex: number; hora: number } | null = null;
 
   ngOnInit(): void {
     const param = this.route.snapshot.paramMap.get('id');
@@ -117,14 +124,14 @@ export class EspacioDetalleComponent implements OnInit {
 
     this.espacioService.obtenerOcupacionSemana(this.idEspacio!, inicio).subscribe({
       next: (data: EspacioReservado) => {
-        this.grilla = this.horarioAGrilla(data.horarios || []);
+        this.grilla = this.horarioAGrilla(data.horarios || [], true);
 
         if (this.espacio?.idCanchaAsociada != null) {
           this.espacioService
             .obtenerOcupacionSemana(this.espacio.idCanchaAsociada, inicio)
             .subscribe({
               next: (dc) => {
-                this.grillaCancha = this.horarioAGrilla(dc.horarios || []);
+                this.grillaCancha = this.horarioAGrilla(dc.horarios || [], false);
                 this.cargandoGrilla = false;
                 this.cdr.detectChanges();
               },
@@ -147,10 +154,12 @@ export class EspacioDetalleComponent implements OnInit {
     });
   }
 
-  private horarioAGrilla(horarios: HorarioReservado[]): TipoOcupacion[][] {
+  private horarioAGrilla(horarios: HorarioReservado[], guardarPropia = false): TipoOcupacion[][] {
     const g: TipoOcupacion[][] = [];
+    const gp: boolean[][] = [];
     for (let f = 0; f < this.horas.length; f++) {
       g[f] = new Array(7).fill(TipoOcupacion.LIBRE);
+      gp[f] = new Array(7).fill(false);
     }
     const base = this.inicioSemana(this.offsetSemana);
     for (const item of horarios) {
@@ -159,8 +168,10 @@ export class EspacioDetalleComponent implements OnInit {
       const fila = f.getHours() - this.HORA_INICIO;
       if (diaIndex >= 0 && diaIndex < 7 && fila >= 0 && fila < this.horas.length) {
         g[fila][diaIndex] = item.tipoOcupacion;
+        gp[fila][diaIndex] = !!item.esPropia;
       }
     }
+    if (guardarPropia) this.grillaPropia = gp;
     return g;
   }
 
@@ -194,6 +205,18 @@ export class EspacioDetalleComponent implements OnInit {
   get puedeAvanzar(): boolean {
     return this.logueado && this.offsetSemana < this.MAXIMO_SEMANAS_ADELANTE;
   }
+
+  get duracionReserva(): number {
+    return this.esSalon ? this.DURACION_SALON : 1;
+  }
+
+  get seCobraPasandoNoche(): boolean {
+    if (!this.seleccion || !this.esSalon) return false;
+    return (
+      this.horasOcupablesDesde(this.seleccion.diaIndex, this.seleccion.hora) < this.DURACION_SALON
+    );
+  }
+
   semanaAnterior(): void {
     if (this.puedeRetroceder) {
       this.offsetSemana--;
@@ -219,26 +242,20 @@ export class EspacioDetalleComponent implements OnInit {
   }
 
   esReservable(diaIndex: number, hora: number): boolean {
-    if (!this.logueado || !this.espacio || !this.espacio.habilitado) return false;
-    const inicio = this.fechaDeCelda(diaIndex, hora);
-    const ahora = new Date();
-    if (inicio.getTime() < ahora.getTime()) return false; // pasado
-    const limite = new Date(ahora);
-    limite.setDate(ahora.getDate() + this.DIAS_LIMITE_RESERVA);
-    if (inicio.getTime() > limite.getTime()) return false; // pasa el limite de reserva
-    const estado = this.estadoCelda(diaIndex, hora);
-    if (this.espacio.tipo === TipoEspacio.CANCHA) {
-      return estado === TipoOcupacion.LIBRE || estado === TipoOcupacion.MEDIA;
-    }
-    return estado === TipoOcupacion.LIBRE;
+    return this.logueado && this.estaDisponible(diaIndex, hora);
   }
 
   claseCelda(diaIndex: number, hora: number): string {
     const estado = this.estadoCelda(diaIndex, hora);
+
+    if (estado !== TipoOcupacion.LIBRE && this.esPropia(diaIndex, hora)) {
+      return 'celda-propia';
+    }
+
     if (estado === TipoOcupacion.COMPLETA) return 'celda-completa';
     if (estado === TipoOcupacion.MEDIA) return 'celda-media';
 
-    const base = this.esReservable(diaIndex, hora) ? 'celda-libre' : 'celda-bloqueada';
+    const base = this.estaDisponible(diaIndex, hora) ? 'celda-libre' : 'celda-bloqueada';
     if (this.esSalon && this.tieneCanchaAsociada && this.canchaOcupadaEn(diaIndex, hora)) {
       return base + ' cancha-ocupada';
     }
@@ -247,6 +264,10 @@ export class EspacioDetalleComponent implements OnInit {
 
   esSeleccionada(diaIndex: number, hora: number): boolean {
     return this.seleccion?.diaIndex === diaIndex && this.seleccion?.hora === hora;
+  }
+
+  esPropia(diaIndex: number, hora: number): boolean {
+    return this.grillaPropia[hora - this.HORA_INICIO]?.[diaIndex] ?? false;
   }
 
   onCeldaClick(diaIndex: number, hora: number): void {
@@ -264,12 +285,64 @@ export class EspacioDetalleComponent implements OnInit {
       fechaHoraIso: this.isoLocal(inicio),
       etiqueta: `${this.dias[diaIndex].nombre} ${String(hora).padStart(2, '0')}:00`,
     };
-    this.incluyeCancha = false;
+    this.incluyeCancha = this.esSalon && this.tieneCanchaAsociada;
+    this.comentario = '';
+  }
+
+  onCeldaHover(diaIndex: number, hora: number): void {
+    if (!this.esSalon) return;
+    if (!this.esReservable(diaIndex, hora)) {
+      this.hoverInicio = null;
+      return;
+    }
+    this.hoverInicio = { diaIndex, hora };
+  }
+
+  onCeldaLeave(): void {
+    this.hoverInicio = null;
   }
 
   cerrarPanel(): void {
     this.seleccion = null;
     this.error = '';
+    this.comentario = '';
+  }
+
+  estaEnHover(diaIndex: number, hora: number): boolean {
+    if (!this.hoverInicio || !this.esSalon) return false;
+    if (this.hoverInicio.diaIndex !== diaIndex) return false;
+    const inicio = this.hoverInicio.hora;
+    const fin = inicio + this.horasOcupablesDesde(this.hoverInicio.diaIndex, inicio);
+    return hora >= inicio && hora < fin;
+  }
+
+  horasOcupablesDesde(diaIndex: number, hora: number): number {
+    const finSupuesto = hora + this.duracionReserva;
+    const finReal = Math.min(finSupuesto, 24);
+    return finReal - hora;
+  }
+
+  estaDisponible(diaIndex: number, hora: number): boolean {
+    if (!this.espacio || !this.espacio.habilitado) return false;
+
+    const inicio = this.fechaDeCelda(diaIndex, hora);
+    const ahora = new Date();
+    if (inicio.getTime() < ahora.getTime()) return false;
+
+    const limite = new Date(ahora);
+    limite.setDate(ahora.getDate() + this.DIAS_LIMITE_RESERVA);
+    if (inicio.getTime() > limite.getTime()) return false;
+
+    if (this.espacio.tipo === TipoEspacio.CANCHA) {
+      const estado = this.estadoCelda(diaIndex, hora);
+      return estado === TipoOcupacion.LIBRE || estado === TipoOcupacion.MEDIA;
+    }
+
+    const horasOcupables = this.horasOcupablesDesde(diaIndex, hora);
+    for (let h = hora; h < hora + horasOcupables; h++) {
+      if (this.estadoCelda(diaIndex, h) !== TipoOcupacion.LIBRE) return false;
+    }
+    return true;
   }
 
   private canchaOcupadaEn(diaIndex: number, hora: number): boolean {
@@ -293,6 +366,8 @@ export class EspacioDetalleComponent implements OnInit {
     const payload: NuevaReserva = {
       idEspacio: this.idEspacio,
       inicio: this.seleccion.fechaHoraIso,
+      duracionHoras: this.duracionReserva,
+      comentario: this.comentario.trim() || undefined,
       ...opts,
     };
     this.guardando = true;
@@ -347,7 +422,9 @@ export class EspacioDetalleComponent implements OnInit {
   }
   get salonFinHora(): string {
     if (!this.seleccion) return '';
-    return String((this.seleccion.hora + 1) % 24).padStart(2, '0') + ':00';
+    const horasReales = this.horasOcupablesDesde(this.seleccion.diaIndex, this.seleccion.hora);
+    const finHora = this.seleccion.hora + horasReales;
+    return String(finHora % 24).padStart(2, '0') + ':00';
   }
   get rangoSemana(): string {
     const ini = this.inicioSemana(this.offsetSemana);

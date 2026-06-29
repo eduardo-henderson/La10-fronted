@@ -7,6 +7,7 @@ export enum TipoOcupacion {
 export interface HorarioReservado {
   horario: string; // LocalDatetime
   tipoOcupacion: TipoOcupacion;
+  esPropia?: boolean;
 }
 
 export interface EspacioReservado {
@@ -21,4 +22,5 @@ export interface NuevaReserva {
   duracionHoras?: number;
   media?: boolean;
   incluyeCancha?: boolean;
+  comentario?: string;
 }

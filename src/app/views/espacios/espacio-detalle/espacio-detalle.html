@@ -43,6 +43,7 @@
         <i class="punto cancha-ocupada-leyenda"></i> Cancha asociada ocupada
       </span>
       <span><i class="punto completa"></i> Ocupado</span>
+      <span><i class="punto propia"></i> Reservado</span>
     </div>
 
     <div *ngIf="exito" class="alerta exito">{{ exito }}</div>
@@ -73,7 +74,10 @@
                 *ngFor="let d of indicesDias"
                 [ngClass]="claseCelda(d, hora)"
                 [class.celda-sel]="esSeleccionada(d, hora)"
+                [class.celda-hover]="estaEnHover(d, hora)"
                 (click)="onCeldaClick(d, hora)"
+                (mouseenter)="onCeldaHover(d, hora)"
+                (mouseleave)="onCeldaLeave()"
               >
                 <span *ngIf="esCancha && estadoCelda(d, hora) === TipoOcupacion.MEDIA" class="etq"
                   >medio rival</span
@@ -97,6 +101,18 @@
         <button class="cerrar" (click)="cerrarPanel()">×</button>
       </div>
       <p class="modal-sub">{{ seleccion.etiqueta }}</p>
+
+      <div class="campo-comentario">
+        <label for="comentario">Comentario (opcional)</label>
+        <textarea
+          id="comentario"
+          [(ngModel)]="comentario"
+          [disabled]="guardando"
+          rows="2"
+          maxlength="500"
+          placeholder="Ingrese un comentario para el admin"
+        ></textarea>
+      </div>
 
       <ng-container *ngIf="esCancha && !seleccionEsMedia">
         <button class="btn-res" [disabled]="guardando" (click)="reservarCompleta()">
@@ -122,24 +138,22 @@
       </ng-container>
 
       <ng-container *ngIf="esSalon">
-        <p class="aviso">Reserva de 1 hora ({{ seleccion.hora }}:00 a {{ salonFinHora }}).</p>
+        <p class="aviso">
+          Reserva de {{ DURACION_SALON }} horas ({{ seleccion.hora }}:00 a {{ salonFinHora }}).
+        </p>
+
+        <p class="aviso" *ngIf="seCobraPasandoNoche" style="color: var(--color-advertencia-texto)">
+          El horario se pasa de las 00:00. Solo se ocuparan las casillas disponibles, pero se cobra
+          el precio completo de las {{ DURACION_SALON }} horas (${{ precioSalon }}).
+        </p>
 
         <label class="check" *ngIf="tieneCanchaAsociada">
-          <input
-            type="checkbox"
-            [(ngModel)]="incluyeCancha"
-            [disabled]="guardando || canchaAsociadaOcupada"
-          />
-          Incluir cancha asociada{{ canchaAsociadaNombre ? ': ' + canchaAsociadaNombre : '' }}
+          <input type="checkbox" [(ngModel)]="incluyeCancha" [disabled]="guardando" />
+          Reservar horas posibles en cancha asociada{{
+            canchaAsociadaNombre ? ' (' + canchaAsociadaNombre + ')' : ''
+          }}
+          (Gratis)
         </label>
-
-        <p
-          class="aviso"
-          *ngIf="tieneCanchaAsociada && canchaAsociadaOcupada"
-          style="color: var(--color-error)"
-        >
-          La cancha asociada ya está reservada en ese horario.
-        </p>
 
         <button class="btn-res" [disabled]="guardando" (click)="reservarSalon()">
           Reservar — ${{ precioSalon }}

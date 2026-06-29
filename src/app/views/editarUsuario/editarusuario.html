@@ -1,68 +1,192 @@
 <div class="login-container">
-  <div class="login-box">
-
+  <div class="login-box perfil-box">
     <div class="login-header">
       <button type="button" (click)="goHome()" class="btn-back-top" title="Volver a inicio">
         ← Atrás
       </button>
       <h1>Editar Cuenta</h1>
-      <p>Modifica los datos de tu perfil administrativo</p>
+      <p>Modificá los datos de tu perfil</p>
     </div>
 
-    <!-- Alerta Dinámica de Éxito NAtiva de tu App -->
-    <div class="alert alert-success" *ngIf="successMessage" style="margin-bottom: 20px; background: #dcfce7; color: #166534; padding: 12px; border-radius: 6px; border-left: 4px solid #16a34a; font-size: 14px;">
-      <strong>✓ Operación Exitosa</strong>
-      {{ successMessage }}
-    </div>
+    <div *ngIf="isLoading" class="perfil-cargando">Cargando datos...</div>
 
-    <!-- Alerta Dinámica de Error -->
-    <div class="alert alert-error" *ngIf="errorMessage" style="margin-bottom: 20px; background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; border-left: 4px solid #dc2626; font-size: 14px;">
-      <strong>⚠️ Error del Sistema</strong>
-      {{ errorMessage }}
-    </div>
+    <ng-container *ngIf="!isLoading">
+      <section class="perfil-seccion">
+        <h2 class="perfil-seccion-titulo">Datos personales</h2>
 
-    <!-- Alerta preventiva de Sesión -->
-    <div class="alert alert-error" *ngIf="!usuario.idUsuario && !successMessage && !errorMessage" style="margin-bottom: 20px; background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px;">
-      <strong>⚠️ Error:</strong> No se encontró la sesión del usuario.
-    </div>
+        <div class="alert alert-success" *ngIf="datosSuccess">{{ datosSuccess }}</div>
+        <div class="alert alert-error" *ngIf="datosError">{{ datosError }}</div>
 
-    <form class="login-form form-grid" #userForm="ngForm" (ngSubmit)="guardarCambios(userForm)">
+        <form
+          class="login-form form-grid"
+          #datosForm="ngForm"
+          (ngSubmit)="guardarDatos(datosForm)"
+          novalidate
+        >
+          <div class="form-group">
+            <label class="form-label">Nombre <span class="req">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              name="nombre"
+              [(ngModel)]="usuario.nombre"
+              #nombre="ngModel"
+              required
+            />
+            <small class="campo-error" *ngIf="nombre.invalid && nombre.touched">
+              El nombre es obligatorio.
+            </small>
+          </div>
 
-      <div class="form-group">
-        <label class="form-label">Nombre</label>
-        <input type="text" class="form-control" name="nombre" [(ngModel)]="usuario.nombre" required>
-      </div>
+          <div class="form-group">
+            <label class="form-label">Apellido <span class="req">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              name="apellido"
+              [(ngModel)]="usuario.apellido"
+              #apellido="ngModel"
+              required
+            />
+            <small class="campo-error" *ngIf="apellido.invalid && apellido.touched">
+              El apellido es obligatorio.
+            </small>
+          </div>
 
-      <div class="form-group">
-        <label class="form-label">Apellido</label>
-        <input type="text" class="form-control" name="apellido" [(ngModel)]="usuario.apellido" required>
-      </div>
+          <div class="form-group">
+            <label class="form-label">Cédula</label>
+            <input
+              type="text"
+              class="form-control campo-bloqueado"
+              name="cedula"
+              [(ngModel)]="usuario.cedula"
+              disabled
+            />
+            <small class="campo-hint">La cédula no se puede modificar.</small>
+          </div>
 
-      <div class="form-group">
-        <label class="form-label">Cédula</label>
-        <input type="text" class="form-control" name="cedula" [(ngModel)]="usuario.cedula" required disabled style="background-color: #f5f5f5; color: #999;">
-      </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono <span class="req">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              name="telefono"
+              [(ngModel)]="usuario.telefono"
+              #telefono="ngModel"
+              required
+            />
+            <small class="campo-error" *ngIf="telefono.invalid && telefono.touched">
+              El teléfono es obligatorio.
+            </small>
+          </div>
 
-      <div class="form-group">
-        <label class="form-label">Correo Electrónico *</label>
-        <input type="email" class="form-control" name="email" [(ngModel)]="usuario.email" required placeholder="ejemplo@correo.com">
-      </div>
+          <div class="form-group full-width">
+            <label class="form-label">Correo electrónico <span class="req">*</span></label>
+            <input
+              type="email"
+              class="form-control"
+              name="email"
+              [(ngModel)]="usuario.email"
+              #email="ngModel"
+              required
+              email
+              placeholder="ejemplo@correo.com"
+            />
+            <small class="campo-error" *ngIf="email.invalid && email.touched">
+              <span *ngIf="email.errors?.['required']">El correo es obligatorio.</span>
+              <span *ngIf="email.errors?.['email']">El correo no tiene un formato válido.</span>
+            </small>
+          </div>
 
-      <div class="form-group">
-        <label class="form-label">Contraseña Actual</label>
-        <input type="password" class="form-control" name="claveActual" [(ngModel)]="usuario.claveActual" placeholder="********">
-      </div>
+          <button
+            type="submit"
+            class="btn btn-primary btn-block full-width"
+            style="margin-top: 10px"
+            [disabled]="isSavingDatos"
+          >
+            {{ isSavingDatos ? 'GUARDANDO...' : 'GUARDAR DATOS' }}
+          </button>
+        </form>
+      </section>
 
-      <div class="form-group">
-        <label class="form-label">Nueva Contraseña</label>
-        <input type="password" class="form-control" name="nuevaClave" [(ngModel)]="usuario.nuevaClave" placeholder="Nueva contraseña">
-      </div>
+      <hr class="perfil-divisor" />
 
-      <button type="submit" class="btn btn-primary btn-block full-width" style="margin-top: 20px;" [disabled]="isSaving">
-        {{ isSaving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
-      </button>
+      <!-- ===== SECCIÓN 2: CAMBIAR CONTRASEÑA ===== -->
+      <section class="perfil-seccion">
+        <h2 class="perfil-seccion-titulo">Cambiar contraseña</h2>
+        <p class="perfil-seccion-sub">Completá esta sección solo si querés cambiarla.</p>
 
-    </form>
+        <div class="alert alert-success" *ngIf="claveSuccess">{{ claveSuccess }}</div>
+        <div class="alert alert-error" *ngIf="claveError">{{ claveError }}</div>
 
+        <form
+          class="login-form form-grid"
+          #claveForm="ngForm"
+          (ngSubmit)="cambiarClave(claveForm)"
+          novalidate
+        >
+          <div class="form-group full-width">
+            <label class="form-label">Contraseña actual <span class="req">*</span></label>
+            <input
+              [type]="verClaves ? 'text' : 'password'"
+              class="form-control"
+              name="claveActual"
+              [(ngModel)]="claveActual"
+              #cActual="ngModel"
+              required
+            />
+            <small class="campo-error" *ngIf="cActual.invalid && cActual.touched">
+              Ingresá tu contraseña actual.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nueva contraseña <span class="req">*</span></label>
+            <input
+              [type]="verClaves ? 'text' : 'password'"
+              class="form-control"
+              name="nuevaClave"
+              [(ngModel)]="nuevaClave"
+              #cNueva="ngModel"
+              required
+              minlength="6"
+            />
+            <small class="campo-error" *ngIf="cNueva.invalid && cNueva.touched">
+              <span *ngIf="cNueva.errors?.['required']">La nueva contraseña es obligatoria.</span>
+              <span *ngIf="cNueva.errors?.['minlength']">Debe tener al menos 6 caracteres.</span>
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirmar contraseña <span class="req">*</span></label>
+            <input
+              [type]="verClaves ? 'text' : 'password'"
+              class="form-control"
+              name="confirmarClave"
+              [(ngModel)]="confirmarClave"
+              #cConfirmar="ngModel"
+              required
+            />
+            <small class="campo-error" *ngIf="cConfirmar.touched && nuevaClave && !clavesCoinciden">
+              Las contraseñas no coinciden.
+            </small>
+          </div>
+
+          <label class="mostrar-claves full-width">
+            <input type="checkbox" name="verClaves" [(ngModel)]="verClaves" />
+            Mostrar contraseñas
+          </label>
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-block full-width"
+            style="margin-top: 6px"
+            [disabled]="isSavingClave || claveForm.invalid || !clavesCoinciden"
+          >
+            {{ isSavingClave ? 'GUARDANDO...' : 'CAMBIAR CONTRASEÑA' }}
+          </button>
+        </form>
+      </section>
+    </ng-container>
   </div>
 </div>
