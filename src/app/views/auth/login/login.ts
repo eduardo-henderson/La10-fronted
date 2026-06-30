@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.isLoading = false;
-          this.cdr.detectChanges();
+          this.cdr.detectChanges(); 
         }),
       )
       .subscribe({
@@ -63,33 +63,34 @@ export class LoginComponent implements OnInit {
           if (token) {
             // 1. Guardamos el token primero en el disco
             localStorage.setItem('auth_token', token);
+            
+            try {
+              // 1. Decodificamos la parte central (Payload) del JWT
+              const payloadBase64 = token.split('.')[1];
+              // decodeURIComponent y escape previenen problemas si hay tildes o eñes en el nombre
+              const payloadDecodificado = JSON.parse(decodeURIComponent(escape(atob(payloadBase64))));
+
+              // 2. Guardamos el objeto serializado extrayendo los datos reales desde los claims del Token
+              localStorage.setItem('usuario_actual', JSON.stringify({
+                idUsuario: payloadDecodificado.idUsuario || null,
+                nombre: payloadDecodificado.nombre || '',
+                apellido: payloadDecodificado.apellido || '',
+                email: payloadDecodificado.email || '', // Nota: si querés el email real, recordá agregarlo como .claim() en Java
+                telefono: payloadDecodificado.telefono || '',
+                fechaNacimiento: '',
+                contrasenia: '',
+                cedula: payloadDecodificado.sub || this.cedula, // En Jwts el subject (.setSubject) viaja en la propiedad 'sub'
+                tipousuario: res?.tipoUsuario || 'CLIENTE',
+                estadoUsuario: 'ACTIVO'
+              }));
+
+            } catch (error) {
+              console.error('Error decodificando el token JWT:', error);
+            }
           }
-
-          const rol = res?.tipoUsuario || res?.usuario?.tipousuario || res?.tipousuario;
-          if (rol) {
-            localStorage.setItem('user_role', rol);
-          }
-
-          // 2. SOLUCIÓN MAESTRA: Extraemos el ID real decodificando el token JWT recién guardado
-          const idRealDesdeToken = this.authService.getUsuarioId();
-          console.log('ID extraído exitosamente del JWT:', idRealDesdeToken);
-
-          const datosUsuario = res?.usuario || res;
-
-          if (datosUsuario) {
-            localStorage.setItem('usuario_actual', JSON.stringify({
-              idUsuario: idRealDesdeToken || null, // Usamos el ID del token
-              idusuario: idRealDesdeToken || null, // Duplicamos por consistencia de base de datos
-              nombre: datosUsuario.nombre || '',
-              apellido: datosUsuario.apellido || '',
-              email: datosUsuario.email || '',
-              telefono: datosUsuario.telefono || '',
-              fechaNacimiento: datosUsuario.fechaNacimiento || '',
-              contrasenia: datosUsuario.contrasenia || this.contrasenia,
-              cedula: datosUsuario.cedula || this.cedula,
-              tipousuario: rol || 'CLIENTE',
-              estadoUsuario: datosUsuario.estadoUsuario || 'ACTIVO'
-            }));
+          
+          if (res?.tipoUsuario) {
+            localStorage.setItem('user_role', res.tipoUsuario);
           }
 
           this.successMessage = 'Login exitoso. Redirigiendo...';
@@ -106,13 +107,16 @@ export class LoginComponent implements OnInit {
             mensaje = err.error.message;
           }
           if (err.status === 401) {
-            mensaje = mensaje || 'Usuario o contraseña incorrectos';
+            mensaje = err.error?.message || 'Usuario o contraseña incorrectos';
           } else if (err.status === 403) {
-            mensaje = 'Acceso denegado';
+            mensaje = err.error?.message || 'Su cuenta no tiene permisos para acceder. Comuníquese con el administrador.';
+          } else if (err.status === 0) {
+            mensaje = 'No se pudo conectar con el servidor. Verifica tu conexión.';
           }
           this.errorMessage = mensaje;
         },
       });
+
   }
 
   togglePasswordVisibility(): void {

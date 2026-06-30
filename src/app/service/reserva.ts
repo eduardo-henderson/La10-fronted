@@ -14,6 +14,27 @@ export class ReservaService {
 
   constructor(private http: HttpClient) {}
 
+  // manda el pago nuevo
+  registrarPagoAdmin(pago: any): Observable<any> {
+    return this.http
+      .post<any>(`/api/version1/pagos/admin`, pago)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
+  // trae el historial de una reserva
+  obtenerPagosReserva(idReserva: number): Observable<any> {
+    return this.http
+      .get<any>(`/api/version1/pagos/reserva/${idReserva}`)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
+  cancelarReservaComoAdmin(reserva: any): Observable<any> {
+    //metodo exclusivo para el panel de control global
+    return this.http
+      .put<any>(`/api/version1/reservas/cancelar-por-administrador`, reserva)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
   //cancelar reserva
   cancelarReserva(reserva: any): Observable<any> {
     //mandamos el objeto reserva completo (que incluye idReserva y motivoCanc)
@@ -23,16 +44,23 @@ export class ReservaService {
   }
 
   //obtiene la ocupacion (MEDIA / COMPLETA) de todos los espacios en un rango de fechas
-  obtenerReservasActivas(): Observable<any> {
-    //interceptor.ts añade automaticamente tu token Bearer
+  obtenerReservasActivas(pagina: number, tamanio: number): Observable<any> {
+    //usamos HttpParams para construir la Query String de forma limpia y segura
+    const params = new HttpParams()
+      .set('pagina', pagina.toString())
+      .set('tamanio', tamanio.toString());
+
     return this.http
-      .get<any>(`/api/version1/reservas/obtenerreservasactivas`)
-      .pipe(catchError((err) => this.handleError(err)));
+      .get<any>(`${this.apiUrl}/activas`, { params })
+      .pipe(
+        catchError((err) => this.handleError(err))
+      );
   }
 
-  listarReservas(idUsuario: number): Observable<any> {
+  //recibe los parametros de pgina para Mis Reservas
+  listarReservas(idUsuario: number, pagina: number, tamanio: number): Observable<any> {
     return this.http
-      .get<any>(`${this.apiUrl}/reservasporusuario/${idUsuario}`)
+      .get<any>(`${this.apiUrl}/reservasporusuario/${idUsuario}?pagina=${pagina}&tamanio=${tamanio}`)
       .pipe(catchError((err) => this.handleError(err)));
   }
 
@@ -74,7 +102,8 @@ export class ReservaService {
           errorMessage = 'No autenticado. Por favor inicia sesión.';
           break;
         case 403:
-          errorMessage = 'No tienes permisos para realizar esta acción.';
+          // leemos el mensaje de Spring Boot primero.
+          errorMessage = error.error?.message || 'Reserva rechazada. Tu cuenta se encuentra en estado de suspención, por favor comunicate con el administrador del complejo gracias';
           break;
         case 404:
           errorMessage = 'El recurso solicitado no existe.';
@@ -83,7 +112,8 @@ export class ReservaService {
           errorMessage = `Error del servidor: ${error.error?.message || 'Intenta más tarde.'}`;
           break;
         default:
-          errorMessage = `Error ${error.status}: ${error.statusText}`;
+          //a veces Spring Boot manda el texto plano directamente en error.error,
+          errorMessage = error.error?.message || error.error || `Error ${error.status}: ${error.statusText}`;
       }
     }
 

@@ -382,3 +382,300 @@
   border-radius: var(--radio-sm);
   font-style: italic;
 }
+
+/*MODAL DE CANCELAR*/
+/* Capa de fondo oscura */
+.mi-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999; /* Asegura que se monte sobre todo */
+}
+
+/* Caja blanca del modal */
+.mi-modal-box {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-family: sans-serif;
+}
+
+/* Encabezado */
+.mi-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.mi-modal-header h3 {
+  margin: 0;
+  color: #dc3545;
+  font-size: 1.25rem;
+}
+
+.btn-cerrar-x {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+}
+
+/* Cuerpo e inputs */
+.mi-modal-body p {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.mi-modal-body label {
+  font-size: 0.85rem;
+  color: #666;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.mi-modal-body textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+  box-sizing: border-box;
+}
+
+/* Footer y Botones */
+.mi-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.btn-volver {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-confirmar {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-volver:hover {
+  background-color: #e2e6ea;
+}
+.btn-confirmar:hover {
+  background-color: #bd2130;
+}
+
+/* ==========================================================================
+   8. ESTILOS COMPARTIDOS DE PAGINACIoN
+   ========================================================================== */
+.paginacion-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+  padding: 12px;
+  background-color: var(--color-superficie-diferente);
+  border-radius: var(--radio-md);
+  border: 1px solid var(--color-borde);
+  flex-shrink: 0; /* evita que se deforme con el scroll interno */
+}
+
+.info-paginas {
+  color: var(--color-texto);
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 110px;
+  text-align: center;
+}
+
+.btn-paginacion {
+  background: linear-gradient(135deg, var(--color-principal) 0%, #312929 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radio-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-paginacion:hover:not(:disabled) {
+  transform: scale(1.03);
+}
+
+.btn-paginacion:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-paginacion:disabled {
+  background: #e2e6ea;
+  color: #999999;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* ajuste responsive para pantallas chicas */
+@media (max-width: 600px) {
+  .paginacion-container {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .btn-paginacion {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+  }
+}
+
+/* boton agregar pago de la tarjeta */
+.btn-pago {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.btn-pago:hover {
+  background-color: #218838;
+}
+
+/* ajustes especificos de tamano para el modal de pagos */
+.modal-pago {
+  max-width: 500px;
+  width: 100%;
+}
+
+.body-pagos {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* seccion historial */
+.historial-pagos {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #e3e6f0;
+}
+
+.titulo-historial {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #4e73df;
+}
+
+.lista-pagos {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.85rem;
+}
+
+.item-pago {
+  margin-bottom: 4px;
+}
+
+.estado-pago-ok {
+  color: green;
+}
+
+.sin-pagos {
+  font-size: 0.85rem;
+  color: #858796;
+  font-style: italic;
+}
+
+.separador-pagos {
+  border: 0;
+  border-top: 1px solid #e3e6f0;
+  margin: 5px 0;
+}
+
+/* formulario de carga */
+.form-group-pago {
+  margin-bottom: 10px;
+}
+
+.label-pago {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.input-pago {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.textarea-pago {
+  resize: none;
+}
+
+/* color verde para el boton de confirmar dentro del modal */
+.btn-confirmar-pago {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-confirmar-pago:hover {
+  background-color: #218838;
+}
+/* Bloque contenedor de la cancha asociada dentro de la tarjeta */
+.cancha-asociada-tag {
+  background-color: #e9ecef;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin: 8px 0;
+  border-left: 4px solid #4e73df;
+}
+
+/* Texto interno del bloque */
+.cancha-asociada-texto {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}

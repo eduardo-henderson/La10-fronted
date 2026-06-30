@@ -86,6 +86,16 @@
 
 .perfil-afuera {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.bienvenida-texto {
+  color: var(--color-texto);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap; 
 }
 
 .btn-perfil {

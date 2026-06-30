@@ -42,7 +42,7 @@ export class LayoutComponent implements OnInit {
 
   itemsMenu: ItemMenu[] = [
     { texto: 'Espacios', ruta: '/espacios', icono: 'bi bi-calendar2-check' },
-    { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-bookmark-star', soloLogueado: true },
+    { texto: 'Tus reservas', ruta: '/reservas', icono: 'bi bi-journal-check', soloLogueado: true },
     {
       texto: 'Administrar Espacios',
       ruta: '/registro-espacio',
@@ -50,7 +50,7 @@ export class LayoutComponent implements OnInit {
       soloAdmin: true,
     },
     {
-      texto: 'Control Reservas',
+      texto: 'Reservas activas',
       ruta: '/reservas-globales',
       icono: 'bi bi-clipboard-data',
       soloAdmin: true,
@@ -66,6 +66,11 @@ export class LayoutComponent implements OnInit {
       ruta: '/promos',
       icono: 'bi bi-box-seam',
       soloAdmin: true,
+    },
+    {
+      texto: 'Contacto e Información',
+      ruta: '/contacto-informacion',
+      icono: 'bi bi-info-circle',
     },
   ];
 
@@ -87,6 +92,10 @@ export class LayoutComponent implements OnInit {
 
   get esadmin(): boolean {
     return this.auth.isAdmin();
+  }
+
+  get nombreUsuario(): string {
+    return this.auth.getNombreUsuario();
   }
 
   alternarMenuPerfil(): void {

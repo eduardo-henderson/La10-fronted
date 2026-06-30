@@ -41,8 +41,18 @@
                 <strong>Cliente:</strong> <em>Datos no disponibles</em>
               </p>
 
-              <p><strong>Usuario Cliente (ID):</strong> {{ item.idUsuario }}</p>
               <p><strong>Tipo Turno:</strong> {{ item.tipoDeReserva }}</p>
+              <p>
+                <strong>Total Cobrado:</strong>
+                <span class="reserva-price">${{ item.precioTotal }}</span>
+              </p>
+
+              <div *ngIf="item.nombreCanchaAsociada" class="cancha-asociada-tag">
+                <p class="cancha-asociada-texto">
+                  ⚽ <strong>Incluye Cancha:</strong> {{ item.nombreCanchaAsociada }}
+                </p>
+              </div>
+
               <p>
                 <strong>Total Cobrado:</strong>
                 <span class="reserva-price">${{ item.precioTotal }}</span>
@@ -64,11 +74,54 @@
               </p>
 
               <div class="reserva-actions" *ngIf="item.estadoDeReserva !== 'CANCELADO'">
-                <button class="btn-cancelar-reserva" (click)="cancelarReserva(item)">
+                <button class="btn-pago" (click)="abrirModalPago(item)">💰 Agregar Pago</button>
+
+                <button class="btn-cancelar-reserva" (click)="abrirModalCancelacion(item)">
                   ❌ Forzar Cancelación
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div
+          *ngIf="!isLoading && totalElementos > 0"
+          class="paginacion-container"
+          style="flex-direction: column; gap: 10px"
+        >
+          <div
+            class="info-totales"
+            style="color: var(--color-texto); font-size: 0.85rem; opacity: 0.8; text-align: center"
+          >
+            <span *ngIf="elementosPagina === totalElementos">
+              Mostrando las {{ totalElementos }} reservas encontradas
+            </span>
+
+            <span *ngIf="elementosPagina !== totalElementos">
+              Resultados {{ desdeElemento }} al {{ hastaElemento }} de un total de
+              {{ totalElementos }}
+            </span>
+          </div>
+
+          <div
+            *ngIf="totalPaginas > 1"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 15px;
+              width: 100%;
+            "
+          >
+            <button class="btn-paginacion" (click)="paginaAnterior()" [disabled]="esPrimeraPagina">
+              « Anterior
+            </button>
+
+            <span class="info-paginas"> Página {{ paginaActual + 1 }} de {{ totalPaginas }} </span>
+
+            <button class="btn-paginacion" (click)="paginaSiguiente()" [disabled]="esUltimaPagina">
+              Siguiente »
+            </button>
           </div>
         </div>
       </section>
@@ -76,6 +129,91 @@
 
     <div class="global-footer">
       <p class="info-text">Administración Avanzada - La 10</p>
+    </div>
+  </div>
+</div>
+
+<div class="mi-modal-overlay" *ngIf="isModalOpen">
+  <div class="mi-modal-box">
+    <div class="mi-modal-header">
+      <h3>Confirmar Cancelación</h3>
+      <button type="button" class="btn-cerrar-x" (click)="isModalOpen = false">×</button>
+    </div>
+
+    <div class="mi-modal-body">
+      <p>¿Estás seguro de que deseas cancelar esta reserva?</p>
+      <label for="motivoInput">Ingresa el motivo de la cancelación (opcional):</label>
+      <textarea
+        id="motivoInput"
+        [(ngModel)]="motivoCancelacion"
+        placeholder="Ej: Reagendado por teléfono, mantenimiento de cancha..."
+        rows="3"
+      >
+      </textarea>
+    </div>
+
+    <div class="mi-modal-footer">
+      <button type="button" class="btn-volver" (click)="isModalOpen = false">Volver atrás</button>
+      <button type="button" class="btn-confirmar" (click)="cancelarReserva()">
+        Confirmar Cancelación
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="mi-modal-overlay" *ngIf="isPagoModalOpen">
+  <div class="mi-modal-box modal-pago">
+    <div class="mi-modal-header">
+      <h3>Gestion de Pagos - Reserva #{{ reservaParaPago?.idReserva }}</h3>
+      <button type="button" class="btn-cerrar-x" (click)="cerrarModalPago()">×</button>
+    </div>
+
+    <div class="mi-modal-body body-pagos">
+      <div *ngIf="pagosDeLaReserva.length > 0" class="historial-pagos">
+        <h4 class="titulo-historial">Pagos registrados:</h4>
+        <ul class="lista-pagos">
+          <li *ngFor="let p of pagosDeLaReserva" class="item-pago">
+            <strong>${{ p.monto }}</strong> - {{ p.fechaPago }} ({{ p.detalle }}) -
+            <span class="estado-pago-ok">{{ p.estadoPago }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div *ngIf="pagosDeLaReserva.length === 0" class="sin-pagos">
+        no hay pagos previos para esta reserva
+      </div>
+
+      <hr class="separador-pagos" />
+
+      <div class="form-group-pago">
+        <label for="montoInput" class="label-pago">Monto a cobrar ($):</label>
+        <input
+          type="number"
+          id="montoInput"
+          class="input-pago"
+          [(ngModel)]="pagoMonto"
+          placeholder="ej 1500"
+        />
+      </div>
+
+      <div class="form-group-pago">
+        <label for="detalleInput" class="label-pago">Detalle de pago:</label>
+        <textarea
+          id="detalleInput"
+          class="input-pago textarea-pago"
+          [(ngModel)]="pagoDetalle"
+          placeholder="ej efectivo transferencia sena"
+          rows="2"
+        >
+        </textarea>
+      </div>
+    </div>
+
+    <div class="mi-modal-footer">
+      <button type="button" class="btn-volver" (click)="cerrarModalPago()">Cancelar</button>
+      <button type="button" class="btn-confirmar btn-confirmar-pago" (click)="guardarPago()">
+        Confirmar Pago
+      </button>
     </div>
   </div>
 </div>

@@ -110,4 +110,27 @@ export class AuthService {
     const r = role.toString().toUpperCase();
     return r === 'ADMINISTRADOR' || r === 'ADMIN' || r.includes('ADMIN');
   }
+
+  getNombreUsuario(): string {
+    const usuarioJson = localStorage.getItem('usuario_actual');
+    if (!usuarioJson) return '';
+
+    try {
+      const usuario = JSON.parse(usuarioJson);
+      
+      //si tiene nombre y no esta vacio lo usa. 
+      //si esta vacio usa la cédula. Si tampoco hay cedula, dice 'Usuario'
+      if (usuario.nombre && usuario.nombre.trim() !== '') {
+        return usuario.nombre;
+      } else if (usuario.cedula && usuario.cedula.trim() !== '') {
+        return usuario.cedula;
+      }
+      
+      return 'Usuario';
+    } catch (error) {
+      console.error('Error al parsear el usuario actual:', error);
+      return '';
+    }
+  }
+  
 }

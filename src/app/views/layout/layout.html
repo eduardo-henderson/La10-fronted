@@ -17,6 +17,8 @@
 
       <!-- logueado -->
       <div *ngIf="estaLogueado" class="perfil-afuera">
+        <span class="bienvenida-texto">¡Hola, {{ nombreUsuario }}!</span>
+
         <button class="btn-perfil" (click)="alternarMenuPerfil()" title="Mi perfil">
           <i class="bi bi-person-circle"></i>
         </button>
