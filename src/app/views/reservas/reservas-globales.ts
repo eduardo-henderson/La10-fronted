@@ -11,7 +11,7 @@ import { Espacio } from '../../models/espacio.model';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './reservas-globales.html',
-  styleUrls: ['./reservas.css'] //usando tu reservas.css unificado
+  styleUrls: ['./reservas.css'], //usando tu reservas.css unificado
 })
 export class ReservasGlobalesComponent implements OnInit {
   reservasGlobales: any[] = [];
@@ -39,7 +39,7 @@ export class ReservasGlobalesComponent implements OnInit {
     private reservaService: ReservaService,
     private espacioService: EspacioService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -54,15 +54,15 @@ export class ReservasGlobalesComponent implements OnInit {
     this.pagoDetalle = '';
     this.pagosDeLaReserva = [];
     this.isPagoModalOpen = true;
-    
+
     // llamamos al back para traer los dtos de los pagos viejos
     this.reservaService.obtenerPagosReserva(reserva.idReserva).subscribe({
       next: (resp: any) => {
         if (resp && resp.status === 'OK') {
           this.pagosDeLaReserva = resp.data || [];
-          this.cdr.detectChanges();//para que angular refresque el html
+          this.cdr.detectChanges(); //para que angular refresque el html
         }
-      }
+      },
     });
   }
 
@@ -89,7 +89,7 @@ export class ReservasGlobalesComponent implements OnInit {
     const pagoDto = {
       idReserva: this.reservaParaPago.idReserva,
       monto: this.pagoMonto,
-      detalle: this.pagoDetalle.trim() === '' ? 'pago manual' : this.pagoDetalle
+      detalle: this.pagoDetalle.trim() === '' ? 'pago manual' : this.pagoDetalle,
     };
 
     this.reservaService.registrarPagoAdmin(pagoDto).subscribe({
@@ -110,7 +110,7 @@ export class ReservasGlobalesComponent implements OnInit {
       },
       complete: () => {
         this.reservaParaPago = null;
-      }
+      },
     });
   }
 
@@ -120,7 +120,7 @@ export class ReservasGlobalesComponent implements OnInit {
         this.listaEspacios = Array.isArray(data) ? data : data?.data || [];
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error al cargar espacios:', err)
+      error: (err) => console.error('Error al cargar espacios:', err),
     });
   }
 
@@ -132,7 +132,7 @@ export class ReservasGlobalesComponent implements OnInit {
       next: (resp: any) => {
         if (resp && resp.data && Array.isArray(resp.data.content)) {
           this.reservasGlobales = resp.data.content;
-          
+
           // Capturamos los metadatos de paginación globales
           this.totalPaginas = resp.data.totalPages ?? 1;
           this.esPrimeraPagina = resp.data.first ?? true;
@@ -156,7 +156,7 @@ export class ReservasGlobalesComponent implements OnInit {
         this.isLoading = false;
         this.errorMessage = err.message || 'Error al consultar las reservas globales.';
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -178,12 +178,12 @@ export class ReservasGlobalesComponent implements OnInit {
   // CALCULO DINAMICO DEL RANGO INICIAL (Ej: 1, 6, 11...)
   get desdeElemento(): number {
     if (this.totalElementos === 0) return 0;
-    return (this.paginaActual * this.tamanioPagina) + 1;
+    return this.paginaActual * this.tamanioPagina + 1;
   }
 
   // CALCULO DINAMICO DEL RANGO FINAL (Ej: 5, 10, 15...)
   get hastaElemento(): number {
-    return (this.paginaActual * this.tamanioPagina) + this.elementosPagina;
+    return this.paginaActual * this.tamanioPagina + this.elementosPagina;
   }
 
   //CANCELAR RESERVA
@@ -193,24 +193,27 @@ export class ReservasGlobalesComponent implements OnInit {
 
   abrirModalCancelacion(item: any): void {
     this.itemACancelar = item;
-    this.motivoCancelacion = ''; 
+    this.motivoCancelacion = '';
     this.isModalOpen = true;
   }
 
   cancelarReserva(): void {
     if (!this.itemACancelar) return;
 
-    this.isModalOpen = false; 
+    this.isModalOpen = false;
     this.cdr.detectChanges(); // forzamos el cierre visual rapido
 
     this.isLoading = true;
-    this.errorMessage = '';   
-    this.successMessage = '';  
+    this.errorMessage = '';
+    this.successMessage = '';
     this.cdr.detectChanges();
 
     const reservaDto = {
       ...this.itemACancelar,
-      motivoCanc: this.motivoCancelacion.trim() === '' ? 'Cancelado por el Administrador' : `Cancelado por el Administrador: ${this.motivoCancelacion.trim()}`
+      motivoCanc:
+        this.motivoCancelacion.trim() === ''
+          ? 'Cancelado por el Administrador'
+          : `Cancelado por el Administrador: ${this.motivoCancelacion.trim()}`,
     };
 
     this.reservaService.cancelarReservaComoAdmin(reservaDto).subscribe({
@@ -234,12 +237,12 @@ export class ReservasGlobalesComponent implements OnInit {
       complete: () => {
         this.itemACancelar = null;
         this.motivoCancelacion = ''; // limpiamos el cuadro de texto
-      }
+      },
     });
   }
 
   getEspacioNombre(idEspacio: number): string {
-    const espacio = this.listaEspacios.find(item => item.idEspacio === idEspacio);
+    const espacio = this.listaEspacios.find((item) => item.idEspacio === idEspacio);
     return espacio ? espacio.nombre : `Espacio #${idEspacio}`;
   }
 

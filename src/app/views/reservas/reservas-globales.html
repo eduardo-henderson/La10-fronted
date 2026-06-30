@@ -42,9 +42,18 @@
               </p>
 
               <p><strong>Tipo Turno:</strong> {{ item.tipoDeReserva }}</p>
+
+              <p>
+                <strong>Precio de la reserva:</strong>
+                <span class="reserva-price">${{ item.precioTotal }}</span>
+              </p>
               <p>
                 <strong>Total Cobrado:</strong>
-                <span class="reserva-price">${{ item.precioTotal }}</span>
+                <span class="reserva-price">${{ item.totalCobrado }}</span>
+              </p>
+
+              <p *ngIf="item.comentario" class="reserva-comentario">
+                <strong>Comentario:</strong> <em>{{ item.comentario }}</em>
               </p>
 
               <div *ngIf="item.nombreCanchaAsociada" class="cancha-asociada-tag">
@@ -52,15 +61,6 @@
                   ⚽ <strong>Incluye Cancha:</strong> {{ item.nombreCanchaAsociada }}
                 </p>
               </div>
-
-              <p>
-                <strong>Total Cobrado:</strong>
-                <span class="reserva-price">${{ item.precioTotal }}</span>
-              </p>
-
-              <p *ngIf="item.comentario" class="reserva-comentario">
-                <strong>Comentario:</strong> {{ item.comentario }}
-              </p>
 
               <p>
                 <strong>Estado:</strong>
