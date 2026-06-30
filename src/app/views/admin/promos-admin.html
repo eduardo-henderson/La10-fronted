@@ -1,0 +1,228 @@
+<div class="promos-pagina">
+  <header class="promos-cabecera">
+    <div class="cabecera-info">
+      <h1>Productos / Promo Packs</h1>
+      <p class="cabecera-sub">Gestioná los adicionales que se agregan a las reservas.</p>
+    </div>
+  </header>
+
+  <div *ngIf="aviso" class="aviso-exito">
+    <i class="bi bi-check-circle"></i>
+    {{ aviso }}
+  </div>
+
+  <section class="panel-card">
+    <div class="panel-toolbar">
+      <div class="buscador">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="filtro"
+          (ngModelChange)="onBuscar()"
+          placeholder="Buscar por nombre o descripción"
+        />
+      </div>
+      <button class="btn-crear" (click)="abrirCrear()">
+        <i class="bi bi-plus-circle"></i>
+        Crear producto
+      </button>
+    </div>
+
+    <div *ngIf="cargando" class="estado">
+      <span class="spinner"></span>
+      <p>Cargando productos...</p>
+    </div>
+
+    <div *ngIf="!cargando && mensajeError" class="estado estado-error">
+      <i class="bi bi-exclamation-triangle"></i>
+      <p>{{ mensajeError }}</p>
+      <button class="btn-retry" (click)="cargar()">Reintentar</button>
+    </div>
+
+    <div *ngIf="!cargando && !mensajeError && packs.length === 0" class="estado">
+      <i class="bi bi-inbox"></i>
+      <p>No hay productos cargados todavía.</p>
+    </div>
+
+    <div
+      *ngIf="!cargando && !mensajeError && packs.length > 0 && packsFiltrados.length === 0"
+      class="estado"
+    >
+      <i class="bi bi-search"></i>
+      <p>Ningún producto coincide con "{{ filtro }}".</p>
+    </div>
+
+    <ng-container *ngIf="!cargando && !mensajeError && packsFiltrados.length > 0">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Estado</th>
+              <th class="th-acciones">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of packsPagina; trackBy: trackById">
+              <td>{{ p.nombre }}</td>
+              <td class="cell-desc" [title]="p.descripcion">{{ p.descripcion }}</td>
+              <td class="cell-mono">${{ p.precio }}</td>
+              <td class="cell-mono">{{ p.stock }}</td>
+              <td>
+                <span class="badge" [ngClass]="esActivo(p) ? 'badge-active' : 'badge-danger'">
+                  {{ esActivo(p) ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="cell-acciones">
+                <button class="btn-icono editar" (click)="abrirEditar(p)" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  *ngIf="esActivo(p)"
+                  class="btn-icono borrar"
+                  (click)="abrirBorrar(p)"
+                  title="Desactivar"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button
+                  *ngIf="!esActivo(p)"
+                  class="btn-icono reactivar"
+                  (click)="reactivar(p)"
+                  title="Reactivar"
+                >
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="paginacion">
+        <div class="paginacion-info">
+          Mostrando {{ packsPagina.length }} de {{ packsFiltrados.length }} producto(s) — Página
+          {{ pagina + 1 }} de {{ totalPaginas }}
+        </div>
+        <div class="paginacion-controles">
+          <button class="btn-pagina" (click)="paginaAnterior()" [disabled]="esPrimera">
+            ‹ Anterior
+          </button>
+          <button
+            *ngFor="let n of numerosPagina"
+            class="btn-pagina num"
+            [class.activa]="n === pagina"
+            (click)="irAPagina(n)"
+          >
+            {{ n + 1 }}
+          </button>
+          <button class="btn-pagina" (click)="paginaSiguiente()" [disabled]="esUltima">
+            Siguiente ›
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+</div>
+
+<!-- Modal crear/editar -->
+<div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ modoEdicion ? 'Editar producto' : 'Crear producto' }}</h3>
+      <button class="cerrar" (click)="cerrarModal()" [disabled]="guardando">&times;</button>
+    </div>
+
+    <form #formPack="ngForm" (ngSubmit)="guardar(formPack)">
+      <div class="form-grid">
+        <div class="campo campo-full">
+          <label>Nombre</label>
+          <input
+            type="text"
+            name="nombre"
+            [(ngModel)]="form.nombre"
+            [disabled]="guardando"
+            required
+          />
+        </div>
+
+        <div class="campo campo-full">
+          <label>Descripción</label>
+          <input
+            type="text"
+            name="descripcion"
+            [(ngModel)]="form.descripcion"
+            [disabled]="guardando"
+          />
+        </div>
+
+        <div class="campo">
+          <label>Precio ($)</label>
+          <input
+            type="number"
+            name="precio"
+            min="0"
+            [(ngModel)]="form.precio"
+            [disabled]="guardando"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label>Stock</label>
+          <input
+            type="number"
+            name="stock"
+            min="0"
+            [(ngModel)]="form.stock"
+            [disabled]="guardando"
+            required
+          />
+        </div>
+
+        <div class="campo campo-full">
+          <label>Estado</label>
+          <select name="estado" [(ngModel)]="form.estado" [disabled]="guardando" required>
+            <option value="A">Activo</option>
+            <option value="I">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="modal-err" *ngIf="errorModal">{{ errorModal }}</p>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn-sec" (click)="cerrarModal()" [disabled]="guardando">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-pri" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : modoEdicion ? 'Guardar cambios' : 'Crear producto' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal desactivar -->
+<div class="modal-overlay" *ngIf="modalBorrarAbierto" (click)="cerrarBorrar()">
+  <div class="modal modal-chico" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>Desactivar producto</h3>
+      <button class="cerrar" (click)="cerrarBorrar()" [disabled]="borrando">&times;</button>
+    </div>
+    <p class="modal-msg">
+      Vas a desactivar <strong>{{ packABorrar?.nombre }}</strong
+      >. Dejará de aparecer al reservar, pero se conserva en las reservas que ya lo incluyen.
+    </p>
+    <p class="modal-nota">Podés volver a activarlo cuando quieras desde esta misma pantalla.</p>
+    <div class="modal-acciones">
+      <button class="btn-sec" (click)="cerrarBorrar()" [disabled]="borrando">Cancelar</button>
+      <button class="btn-peligro" (click)="confirmarBorrar()" [disabled]="borrando">
+        {{ borrando ? 'Desactivando...' : 'Desactivar' }}
+      </button>
+    </div>
+  </div>
+</div>

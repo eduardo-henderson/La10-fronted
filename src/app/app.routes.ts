@@ -10,6 +10,7 @@ import { RegistroComponent } from './views/registroUsuario/registro';
 import { EspaciosComponent } from './views/espacios/espacios';
 import { EspacioDetalleComponent } from './views/espacios/espacio-detalle/espacio-detalle';
 import { UsuariosAdminComponent } from './views/admin/usuarios-admin';
+import { PromosAdminComponent } from './views/admin/promos-admin';
 
 // IMPORTACIÓN CORREGIDA: Apunta exactamente a tu archivo físico "editarusaurio"
 import { EditarUsuarioComponent } from './views/editarUsuario/editarusuario';
@@ -33,9 +34,10 @@ export const routes: Routes = [
       { path: 'espacios/:id', component: EspacioDetalleComponent },
       { path: 'usuarios', component: UsuariosAdminComponent },
       { path: 'perfil', component: EditarUsuarioComponent },
+      { path: 'promos', component: PromosAdminComponent },
     ],
   },
 
   // Ruta comodín por si escriben cualquier otra cosa en la URL
-  { path: '**', redirectTo: 'espacios' }
+  { path: '**', redirectTo: 'espacios' },
 ];

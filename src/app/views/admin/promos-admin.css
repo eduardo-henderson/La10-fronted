@@ -1,0 +1,37 @@
+@import './usuarios-admin.css';
+
+.promos-pagina {
+  padding: 2rem 2.25rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.promos-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-lg);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--sombra-sm);
+  margin-bottom: 1.5rem;
+}
+
+.btn-icono.reactivar {
+  color: var(--color-exito-texto);
+}
+.btn-icono.reactivar:hover {
+  background: var(--color-exito-fondo);
+  border-color: var(--color-exito);
+}
+
+.cell-desc {
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-texto-secundario);
+}

@@ -6,6 +6,8 @@ import { EspacioService } from '../../../service/espacio';
 import { ReservaService } from '../../../service/reserva';
 import { AuthService } from '../../../service/auth.service';
 import { Espacio, TipoEspacio } from '../../../models/espacio.model';
+import { PromoPackService } from '../../../service/promo-pack.service';
+import { PromoPack } from '../../../models/promo-pack.model';
 import {
   EspacioReservado,
   HorarioReservado,
@@ -40,6 +42,7 @@ export class EspacioDetalleComponent implements OnInit {
   private reservaService = inject(ReservaService);
   private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private promoService = inject(PromoPackService);
 
   HORA_INICIO = 10;
   DURACION_SALON = 5;
@@ -77,6 +80,11 @@ export class EspacioDetalleComponent implements OnInit {
   comentario = '';
 
   hoverInicio: { diaIndex: number; hora: number } | null = null;
+
+  packsDisponibles: PromoPack[] = [];
+  packsElegidos: { [idPp: number]: number } = {};
+
+  filtroPacks = '';
 
   ngOnInit(): void {
     const param = this.route.snapshot.paramMap.get('id');
@@ -192,11 +200,35 @@ export class EspacioDetalleComponent implements OnInit {
     }
   }
 
+  private cargarPacks(): void {
+    this.promoService.disponibles().subscribe({
+      next: (lista) => {
+        this.packsDisponibles = lista;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.packsDisponibles = [];
+      },
+    });
+  }
+
+  private promosParaEnviar() {
+    return Object.entries(this.packsElegidos)
+      .map(([idPp, cantidad]) => ({ idPp: Number(idPp), cantidad: Number(cantidad) }))
+      .filter((p) => p.cantidad > 0);
+  }
+
   get canchaAsociadaOcupada(): boolean {
     if (!this.seleccion || !this.espacio?.idCanchaAsociada) return false;
     const fila = this.seleccion.hora - this.HORA_INICIO;
     const estado = this.grillaCancha[fila]?.[this.seleccion.diaIndex] ?? TipoOcupacion.LIBRE;
     return estado !== TipoOcupacion.LIBRE;
+  }
+
+  get packsFiltrados(): PromoPack[] {
+    const q = this.filtroPacks.trim().toLowerCase();
+    if (!q) return this.packsDisponibles;
+    return this.packsDisponibles.filter((p) => p.nombre.toLowerCase().includes(q));
   }
 
   get puedeRetroceder(): boolean {
@@ -215,6 +247,13 @@ export class EspacioDetalleComponent implements OnInit {
     return (
       this.horasOcupablesDesde(this.seleccion.diaIndex, this.seleccion.hora) < this.DURACION_SALON
     );
+  }
+
+  get totalPacks(): number {
+    return this.packsDisponibles.reduce((acc, p) => {
+      const cant = this.packsElegidos[p.idPp] || 0;
+      return acc + cant * p.precio;
+    }, 0);
   }
 
   semanaAnterior(): void {
@@ -285,6 +324,9 @@ export class EspacioDetalleComponent implements OnInit {
       fechaHoraIso: this.isoLocal(inicio),
       etiqueta: `${this.dias[diaIndex].nombre} ${String(hora).padStart(2, '0')}:00`,
     };
+    this.packsElegidos = {};
+    this.cargarPacks();
+    this.filtroPacks = '';
     this.incluyeCancha = this.esSalon && this.tieneCanchaAsociada;
     this.comentario = '';
   }
@@ -320,6 +362,13 @@ export class EspacioDetalleComponent implements OnInit {
     const finSupuesto = hora + this.duracionReserva;
     const finReal = Math.min(finSupuesto, 24);
     return finReal - hora;
+  }
+
+  cambiarCantidadPack(idPp: number, cantidad: number, stock: number): void {
+    let c = Number(cantidad) || 0;
+    if (c < 0) c = 0;
+    if (c > stock) c = stock;
+    this.packsElegidos[idPp] = c;
   }
 
   estaDisponible(diaIndex: number, hora: number): boolean {
@@ -368,6 +417,7 @@ export class EspacioDetalleComponent implements OnInit {
       inicio: this.seleccion.fechaHoraIso,
       duracionHoras: this.duracionReserva,
       comentario: this.comentario.trim() || undefined,
+      promos: this.promosParaEnviar(),
       ...opts,
     };
     this.guardando = true;
@@ -433,6 +483,19 @@ export class EspacioDetalleComponent implements OnInit {
     const fmt = (d: Date) =>
       `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
     return `${fmt(ini)} al ${fmt(fin)}`;
+  }
+
+  get hayPacks(): boolean {
+    return this.totalPacks > 0;
+  }
+  get totalCompletaConPacks(): number {
+    return this.precioCompleta + this.totalPacks;
+  }
+  get totalMediaConPacks(): number {
+    return this.precioMedia + this.totalPacks;
+  }
+  get totalSalonConPacks(): number {
+    return this.precioSalon + this.totalPacks;
   }
 
   private lunesDeEstaSemana(): Date {

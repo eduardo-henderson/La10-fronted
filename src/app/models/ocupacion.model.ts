@@ -16,11 +16,17 @@ export interface EspacioReservado {
   horarios: HorarioReservado[];
 }
 
+export interface PromoSeleccionado {
+  idPp: number;
+  cantidad: number;
+}
+
 export interface NuevaReserva {
   idEspacio: number;
-  inicio: string; // LocalDateTime
+  inicio: string;
   duracionHoras?: number;
   media?: boolean;
   incluyeCancha?: boolean;
   comentario?: string;
+  promos?: PromoSeleccionado[];
 }

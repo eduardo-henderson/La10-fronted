@@ -61,6 +61,12 @@ export class LayoutComponent implements OnInit {
       icono: 'bi bi-people',
       soloAdmin: true,
     },
+    {
+      texto: 'Promo Packs',
+      ruta: '/promos',
+      icono: 'bi bi-box-seam',
+      soloAdmin: true,
+    },
   ];
 
   get itemsGenerales(): ItemMenu[] {

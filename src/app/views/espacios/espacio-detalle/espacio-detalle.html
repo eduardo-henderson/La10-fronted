@@ -114,9 +114,49 @@
         ></textarea>
       </div>
 
+      <div class="packs-seccion" *ngIf="packsDisponibles.length > 0">
+        <h4 class="packs-titulo">Agregar productos (opcional)</h4>
+
+        <input
+          type="text"
+          class="packs-buscador"
+          [(ngModel)]="filtroPacks"
+          placeholder="Buscar producto..."
+          [disabled]="guardando"
+        />
+
+        <div class="packs-lista">
+          <div class="pack-fila" *ngFor="let p of packsFiltrados">
+            <div class="pack-info">
+              <span class="pack-nombre">{{ p.nombre }}</span>
+              <span class="pack-desc" *ngIf="p.descripcion">{{ p.descripcion }}</span>
+              <span class="pack-precio">${{ p.precio }} c/u · stock {{ p.stock }}</span>
+            </div>
+            <input
+              type="number"
+              class="pack-cantidad"
+              min="0"
+              [max]="p.stock"
+              [value]="packsElegidos[p.idPp] || 0"
+              (input)="cambiarCantidadPack(p.idPp, $any($event.target).value, p.stock)"
+              [disabled]="guardando"
+            />
+          </div>
+
+          <p class="packs-vacio" *ngIf="packsFiltrados.length === 0">
+            Ningún producto coincide con "{{ filtroPacks }}".
+          </p>
+        </div>
+
+        <p class="packs-total" *ngIf="totalPacks > 0">
+          Subtotal productos: <strong>${{ totalPacks }}</strong>
+        </p>
+      </div>
+
       <ng-container *ngIf="esCancha && !seleccionEsMedia">
         <button class="btn-res" [disabled]="guardando" (click)="reservarCompleta()">
-          Reserva completa — ${{ precioCompleta }}
+          Reserva completa — ${{ precioCompleta
+          }}<span *ngIf="hayPacks"> + productos = ${{ totalCompletaConPacks }}</span>
         </button>
         <button
           class="btn-res alt"
@@ -124,7 +164,8 @@
           [disabled]="guardando"
           (click)="reservarMedia()"
         >
-          Media reserva (buscar rival) — ${{ precioMedia }}
+          Media reserva (buscar rival) - ${{ precioMedia
+          }}<span *ngIf="hayPacks"> + productos = ${{ totalMediaConPacks }}</span>
         </button>
       </ng-container>
 
@@ -133,7 +174,8 @@
           Hay una media reserva esperando rival. Al unirte, el turno queda confirmado.
         </p>
         <button class="btn-res" [disabled]="guardando" (click)="reservarMedia()">
-          Unirme — media reserva — ${{ precioMedia }}
+          Unirme - media reserva - ${{ precioMedia
+          }}<span *ngIf="hayPacks"> + productos = ${{ totalMediaConPacks }}</span>
         </button>
       </ng-container>
 
@@ -156,7 +198,8 @@
         </label>
 
         <button class="btn-res" [disabled]="guardando" (click)="reservarSalon()">
-          Reservar — ${{ precioSalon }}
+          Reservar — ${{ precioSalon
+          }}<span *ngIf="hayPacks"> + productos = ${{ totalSalonConPacks }}</span>
         </button>
       </ng-container>
 
